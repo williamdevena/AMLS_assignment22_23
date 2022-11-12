@@ -10,7 +10,7 @@ PATH_CARTOON_TRAIN_LABELS = "/Users/william.devena/Desktop/UCL/COURSES/AML1/ASSI
 PATH_CARTOON_TEST_IMG = "/Users/william.devena/Desktop/UCL/COURSES/AML1/ASSIGNMENT_PROJECT/Datasets/cartoon_set_test/img"
 PATH_CARTOON_TEST_LABELS = "/Users/william.devena/Desktop/UCL/COURSES/AML1/ASSIGNMENT_PROJECT/Datasets/cartoon_set_test/labels.csv"
 
-COLS_CELEBA = ['img_name', 'gender', 'smiling']
-COLS_CARTOON = ['img_name', 'eye_color', 'face_shape']
+COLS_CELEBA = ["img_name", "gender", "smiling"]
+COLS_CARTOON = ["img_name", "eye_color", "face_shape"]
 
 SEPARATOR = "\t"
