@@ -1,0 +1,8 @@
+# Black formatting
+[tool.black]
+line-length = 79
+
+# iSort
+[tool.isort]
+profile = "black"
+line_length = 79

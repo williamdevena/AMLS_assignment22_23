@@ -8,11 +8,32 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 
-sys.path.append("./src/")
-
-from costants import (
+from src.costants import (
     SEPARATOR,
+    PATH_CELEBA_TRAIN_LABELS,
+    PATH_CARTOON_TRAIN_LABELS,
+    PATH_CARTOON_TEST_LABELS,
+    PATH_CELEBA_TEST_LABELS,
 )
+
+sys.path.append("../")
+import utilities.logging_utilities as logging_utilities
+
+
+def data_visualization_labels():
+    """
+    Visualizes the histograms of all the labels in the two datasets
+
+    Args: None
+
+    Returns:
+        - None
+    """
+    logging_utilities.print_name_stage_project("DATA VISUALIZATION")
+    visualize_hist_distribution_csv(PATH_CARTOON_TRAIN_LABELS)
+    visualize_hist_distribution_csv(PATH_CELEBA_TRAIN_LABELS)
+    visualize_hist_distribution_csv(PATH_CARTOON_TEST_LABELS)
+    visualize_hist_distribution_csv(PATH_CELEBA_TEST_LABELS)
 
 
 def histogram_df(df):

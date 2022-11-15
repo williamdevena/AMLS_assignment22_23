@@ -1,44 +1,45 @@
 import logging
 
-from src.costants import (
-    PATH_CARTOON_TEST_IMG,
-    PATH_CARTOON_TEST_LABELS,
-    PATH_CARTOON_TRAIN_IMG,
-    PATH_CARTOON_TRAIN_LABELS,
-    PATH_CELEBA_TEST_IMG,
-    PATH_CELEBA_TEST_LABELS,
-    PATH_CELEBA_TRAIN_IMG,
-    PATH_CELEBA_TRAIN_LABELS,
-    SEPARATOR,
-)
-from src.data_preparation import *
-from src.data_visualization import *
-from utilities.logging_utilities import *
+import src.data_preparation as data_preparation
+import src.data_visualization as data_visualization
+import baselines.knn as knn
+import baselines.mlp as mlp
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
-def data_preparation():
-    print_name_stage_project("DATA PREPARATION")
-    check_values_from_csv(PATH_CARTOON_TRAIN_LABELS)
-    check_values_from_csv(PATH_CELEBA_TRAIN_LABELS)
-    check_values_from_csv(PATH_CARTOON_TEST_LABELS)
-    check_values_from_csv(PATH_CELEBA_TEST_LABELS)
-    check_shape_images(PATH_CELEBA_TRAIN_IMG)
-    check_shape_images(PATH_CELEBA_TEST_IMG)
-    check_shape_images(PATH_CARTOON_TRAIN_IMG)
-    check_shape_images(PATH_CARTOON_TEST_IMG)
-
-
-def data_visualization():
-    print_name_stage_project("DATA VISUALIZATION")
-    visualize_hist_distribution_csv(PATH_CARTOON_TRAIN_LABELS)
-    visualize_hist_distribution_csv(PATH_CELEBA_TRAIN_LABELS)
-
-
 def main():
-    data_preparation()
-    data_visualization()
+    '''
+    DATA PREPARATION
+    '''
+    # data_preparation.data_preparation()
+
+    '''
+    DATA VISUALIZATION
+    '''
+    # data_visualization.data_visualization()
+
+    '''
+    KNN CROSS VALIDATION
+    '''
+    # labels = "eye_color"
+    # # k_fold_param = 5
+    # k_fold_params = range(5, 11)
+    # # k-fold cross validation
+    # array_possible_hyperparameter = range(10, 101, 10)
+    # k_fold_params = range(5, 7)
+    # knn_plots_and_log_directory = "../plots_and_logs/test"
+    # knn.knn_k_fold_cross_validation_with_multiple_k(
+    #     k_fold_params,
+    #     array_possible_hyperparameter,
+    #     labels,
+    #     knn_plots_and_log_directory,
+    # )
+
+    '''
+    MLP
+    '''
+    mlp.main()
 
 
 if __name__ == "__main__":

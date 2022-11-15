@@ -12,15 +12,43 @@ import cv2
 import numpy as np
 import pandas as pd
 
-sys.path.append("./src/")
-
-from costants import (
+from src.costants import (
+    PATH_CARTOON_TEST_IMG,
+    PATH_CARTOON_TEST_LABELS,
+    PATH_CARTOON_TRAIN_IMG,
     PATH_CARTOON_TRAIN_LABELS,
+    PATH_CELEBA_TEST_IMG,
+    PATH_CELEBA_TEST_LABELS,
+    PATH_CELEBA_TRAIN_IMG,
+    PATH_CELEBA_TRAIN_LABELS,
     SEPARATOR,
 )
 
-logging.basicConfig(format='%(message)s', level=logging.INFO)
+sys.path.append("../")
+import utilities.logging_utilities as logging_utilities
 
+logging.basicConfig(format="%(message)s", level=logging.INFO)
+
+
+def data_preparation():
+    """
+    Performs data stage of data preparation on both the cartoon dataset and the celeba dataset.
+    (Check the functions check_values_from_csv and check_shape_images for more details)
+
+    Args: None
+
+    Returns:
+        - None
+    """
+    logging_utilities.print_name_stage_project("DATA PREPARATION")
+    check_values_from_csv(PATH_CARTOON_TRAIN_LABELS)
+    check_values_from_csv(PATH_CELEBA_TRAIN_LABELS)
+    check_values_from_csv(PATH_CARTOON_TEST_LABELS)
+    check_values_from_csv(PATH_CELEBA_TEST_LABELS)
+    check_shape_images(PATH_CELEBA_TRAIN_IMG)
+    check_shape_images(PATH_CELEBA_TEST_IMG)
+    check_shape_images(PATH_CARTOON_TRAIN_IMG)
+    check_shape_images(PATH_CARTOON_TEST_IMG)
 
 
 def check_values_from_csv(path_csv):
@@ -42,11 +70,13 @@ def check_values_from_csv(path_csv):
     for key in df_only_variables.keys():
         counts = np.unique(df_only_variables[key], return_counts=True)
         dict_counts[key] = {
-            'values': list(counts[0]),
-            'counts' : list(counts[1])
-            }
+            "values": list(counts[0]),
+            "counts": list(counts[1]),
+        }
     logging.info(f"\nTYPES OF DATA IN THE DATAFRAME:\n{pformat(df.dtypes)}")
-    logging.info(f"\nCOUNTS OF VALUES IN THE VARIABLES:\n{pformat(dict_counts)}")
+    logging.info(
+        f"\nCOUNTS OF VALUES IN THE VARIABLES:\n{pformat(dict_counts)}"
+    )
     logging.info("\n\n\n")
 
     return df.dtypes, dict_counts
@@ -70,9 +100,12 @@ def check_shape_images(path_folder_images):
         for image in images
     ]
     shapes_np_unique = np.unique(array_shapes, axis=0, return_counts=True)
-    
-    shapes = {'shapes' : [tuple(shape) for shape in shapes_np_unique[0]], 'counts' : [count for count in shapes_np_unique[1]]}
-    
+
+    shapes = {
+        "shapes": [tuple(shape) for shape in shapes_np_unique[0]],
+        "counts": [count for count in shapes_np_unique[1]],
+    }
+
     logging.info(f"\nSHAPES IN THE DATASET:\n{shapes}")
     logging.info("\n\n\n")
 
@@ -100,7 +133,9 @@ def reformat_csv_cartoon(original_path, new_path):
 
 
 def main():
-    check_values_from_csv(PATH_CARTOON_TRAIN_LABELS)
+    # check_values_from_csv(PATH_CARTOON_TRAIN_LABELS)
+
+    return
 
 
 if __name__ == "__main__":
