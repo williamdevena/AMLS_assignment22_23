@@ -1,12 +1,16 @@
 import src.data_loading as data_loading
 import src.costants as costants
+
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
+import mlflow
+import mlflow.sklearn
 
 import sys
 import os
 import logging
+
 
 sys.path.append("../")
 
@@ -28,10 +32,9 @@ def knn_k_fold_cross_validation_with_multiple_k(
     Args:
         - k_fold_params (list): list of k fold parameters to test
         - array_possible_hyperparameter (list): list of hyperparameters (k of the knn model) to test
-        - X_train (np.ndarray): training dataset (the dataset that is divided in k subdatasets)
-        - Y_train (np.ndarray): training labels
-        - X_test (np.ndarray): testing dataset (for the final evaluation of the best hyperparameter selected)
-        - Y_test (np.ndarray): testing labels (for the final evaluation of the best hyperparameter selected)
+        - dataset (str): can be 'cartoon' or 'celeba' and represents the dataset we want to use
+        - labels (str): can be 'gender' and 'smiling' for the cartoon dataset and 'eye_color' and
+        'face_shape' for the celeba dataset
         - knn_plots_and_log_directory (str): path of the directory where to save the plots and files of the results
 
     Returns:
@@ -39,7 +42,8 @@ def knn_k_fold_cross_validation_with_multiple_k(
     """
 
     X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
-        dataset, labels)
+        dataset, labels
+    )
 
     for k_fold_param in k_fold_params:
         # perform k-fold cross validation
@@ -116,14 +120,17 @@ def knn_k_fold_cross_validation(
         mean_score = scores.mean()
         logging.info(f"Score: {mean_score}")
         array_hyperparameter_and_scores.append((hyperparameter, mean_score))
+        #mlflow.log_metric(f"{k}-fold scores", scores)
+        mlflow.log_metric(f"Mean score", mean_score)
 
-    def lambda_best_hyperparam(x): return x[1]
     best_hyperparam = max(
-        array_hyperparameter_and_scores, key=lambda_best_hyperparam
+        array_hyperparameter_and_scores, key=lambda x: x[1]
     )[0]
     best_model = KNeighborsClassifier(n_neighbors=best_hyperparam)
     best_model.fit(X_train, Y_train)
+    mlflow.sklearn.log_model(best_model, "best model")
     final_score_best_hyperparam = best_model.score(X_test, Y_test)
+    mlflow.log_metric(f"Score of best model", final_score_best_hyperparam)
 
     return (
         array_hyperparameter_and_scores,
