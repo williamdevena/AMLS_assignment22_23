@@ -1,15 +1,17 @@
-import src.data_loading as data_loading
-import src.costants as costants
+from src import (
+    data_loading,
+    costants
+)
 
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
-import mlflow
-import mlflow.sklearn
 
 import sys
 import os
 import logging
+import json
+from pprint import pformat
 
 
 sys.path.append("../")
@@ -18,32 +20,131 @@ sys.path.append("../")
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
+def knn_for_every_dataset():
+    """"
+    Train and tests knn and writes the results for every combination of dataset,
+    label and k.
+
+    Args: None
+
+    Returns: None
+
+    """
+    dict_combinations_datasets_labels_dimensions = {
+        # "cartoon": (['eye_color', 'face_shape'], (500, 500)),
+        "celeba": (['gender', 'smiling'], (178, 218)),
+        "cropped_eye_cartoon": (['eye_color'], (25, 29)),
+        "cropped_mouth_celeba": (['gender', 'smiling'], (58, 33)),
+        "cropped_eyes_celeba": (['gender', 'smiling'], (98, 38)),
+    }
+
+    # !!!!!!!!!!!!!
+    # RISOLVERE PROBLEMA CHE VOGLIAMO SCRIVERE UN JSON PER DATASET
+    # E NON UNO PER OGNI COMBINAZIONE
+    # !!!!!!!!!!!!!
+
+    array_k = [20, 30, 40]
+    for key, value in dict_combinations_datasets_labels_dimensions.items():
+        dataset = key
+        array_labels = value[0]
+        image_dimensions = value[1]
+        for label in array_labels:
+            for k in array_k:
+                exp_parameters = knn_with_logging(
+                    k=k, dataset=dataset, label=label, image_dimensions=image_dimensions)
+                logging.info(pformat(exp_parameters))
+
+
+def knn_with_logging(k, dataset, label, image_dimensions):
+    """
+     Uses KNN on a dataset and logs the parameters and the results 
+     of the experiment.
+
+    Args:
+        - k (int): the k paramater for the KNN model
+        - dataset (str): could be "cartoon", "cropped_eye_cartoon", "celeba", "cropped_mouth_celeba"
+        or "cropped_eyes_celeba" and indicates which
+        dataset we want to load
+        - labels (str): label of Y_train and Y_test that we want to load
+        (both datasets have two labels)
+        - image_dimensions (tuple): represents the shape that we want for the image 
+        of the dataset (in the case it's smaller then the original, resizing is perfomed)
+
+    Returns:
+        - parameters (dict): contains the parameters of the experiment (k, dataset, label,
+        image dimensions and the score)
+    """
+
+    X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
+        dataset, label, image_dimensions
+    )
+    score = knn(k, X_train, Y_train, X_test, Y_test)
+
+    path_directory = os.path.join(costants.PATH_PLOTS_LOGS_FOLDER, "knn")
+    file_name = f"knn_{k}_{dataset}_{label}"
+    final_path = os.path.join(path_directory, file_name)
+    parameters = {
+        "Score": score,
+        "k": k,
+        "Dataset": dataset,
+        "Label": label,
+        "Image dimensions": image_dimensions
+    }
+
+    with open(final_path, 'w') as f:
+        #json.dump(parameters, f)
+        pass
+
+    return parameters
+
+
+def knn(k, X_train, Y_train, X_test, Y_test):
+    """
+    Uses KNN on a dataset. It first fits the training data and then returns the score
+    pn a test dataset.
+
+    Args:
+        - k (int): the k paramater for the KNN model
+        - X_train (np.ndarray): training dataset (the dataset that is divided in k subdatasets)
+        - Y_train (np.ndarray): training labels
+        - X_test (np.ndarray): testing dataset (for the final evaluation of the best hyperparameter selected)
+        - Y_test (np.ndarray): testing labels (for the final evaluation of the best hyperparameter selected)
+
+    Returns:
+        - score (float): accuracy of the model on the test dataset (X_test)
+    """
+    knn_model = KNeighborsClassifier(n_neighbors=k)
+    knn_model.fit(X_train, Y_train)
+    score = knn_model.score(X_test, Y_test)
+
+    return score
+
+
 def knn_k_fold_cross_validation_with_multiple_k(
     k_fold_params,
     array_possible_hyperparameter,
-    dataset,
-    labels,
+    X_train,
+    Y_train,
+    X_test,
+    Y_test,
     knn_plots_and_log_directory,
 ):
     """
-    Performs k-fold cross validation multiple times for multiple k's.
+    Performs k-fold cross validation multiple times for multiple k's (k-fold parameter).
     It also plots and writes the results of every k-fold execution.
 
     Args:
         - k_fold_params (list): list of k fold parameters to test
         - array_possible_hyperparameter (list): list of hyperparameters (k of the knn model) to test
-        - dataset (str): can be 'cartoon' or 'celeba' and represents the dataset we want to use
-        - labels (str): can be 'gender' and 'smiling' for the cartoon dataset and 'eye_color' and
-        'face_shape' for the celeba dataset
+        - X_train (np.ndarray): training dataset (the dataset that is divided in k subdatasets)
+        - Y_train (np.ndarray): training labels
+        - X_test (np.ndarray): testing dataset (for the final evaluation of the best hyperparameter selected)
+        - Y_test (np.ndarray): testing labels (for the final evaluation of the best hyperparameter selected)
         - knn_plots_and_log_directory (str): path of the directory where to save the plots and files of the results
 
     Returns:
         - None
     """
-
-    X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
-        dataset, labels
-    )
 
     for k_fold_param in k_fold_params:
         # perform k-fold cross validation
@@ -128,7 +229,7 @@ def knn_k_fold_cross_validation(
     )[0]
     best_model = KNeighborsClassifier(n_neighbors=best_hyperparam)
     best_model.fit(X_train, Y_train)
-    mlflow.sklearn.log_model(best_model, "best model")
+    mlflow.log_param("best k", best_hyperparam)
     final_score_best_hyperparam = best_model.score(X_test, Y_test)
     mlflow.log_metric(f"Score of best model", final_score_best_hyperparam)
 

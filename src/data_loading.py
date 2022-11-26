@@ -10,22 +10,26 @@ import os
 import cv2
 import logging
 from pprint import pprint
+import mlflow
+from sklearn.preprocessing import StandardScaler
 
-import src.costants as costants
+from src import costants
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
-def load_X_Y_train_test(dataset, label):
+def load_X_Y_train_test(dataset, label, image_dimensions, scaling=True):
     """
     Reads the ds folders and the .csv labels files and returns
     X_train, Y_train, X_test and Y_test (X_train and X_test in a flatten format).
 
     Args:
-        - dataset (str): could be "cartoon" or "celeba" and indicates which
+        - dataset (str): could be "cartoon", "celeba" or "cropped_celeba" and indicates which
         dataset we want to load
         - labels (str): label of Y_train and Y_test that we want to load
         (both datasets have two labels)
+        - image_dimensions (tuple): represents the shape that we want for the image 
+        of the dataset (in the case it's smaller then the original, resizing is perfomed)
 
     Returns:
         - X_train (np.ndarray): Contains the training samples in a flatten shape
@@ -39,35 +43,63 @@ def load_X_Y_train_test(dataset, label):
         path_train_labels = costants.PATH_CARTOON_TRAIN_LABELS
         path_test_img = costants.PATH_CARTOON_TEST_IMG
         path_test_labels = costants.PATH_CARTOON_TEST_LABELS
+    elif dataset == "cropped_eye_cartoon":
+        path_train_img = costants.PATH_CARTOON_TRAIN_CROPPED_EYE_IMG
+        path_train_labels = costants.PATH_CARTOON_TRAIN_LABELS
+        path_test_img = costants.PATH_CARTOON_TEST_CROPPED_EYE_IMG
+        path_test_labels = costants.PATH_CARTOON_TEST_LABELS
     elif dataset == "celeba":
         path_train_img = costants.PATH_CELEBA_TRAIN_IMG
         path_train_labels = costants.PATH_CELEBA_TRAIN_LABELS
         path_test_img = costants.PATH_CELEBA_TEST_IMG
         path_test_labels = costants.PATH_CELEBA_TEST_LABELS
+    elif dataset == "cropped_mouth_celeba":
+        path_train_img = costants.PATH_CELEBA_TRAIN_CROPPED_MOUTH_IMG
+        path_train_labels = costants.PATH_CELEBA_TRAIN_LABELS
+        path_test_img = costants.PATH_CELEBA_TEST_CROPPED_MOUTH_IMG
+        path_test_labels = costants.PATH_CELEBA_TEST_LABELS
+    elif dataset == "cropped_eyes_celeba":
+        path_train_img = costants.PATH_CELEBA_TRAIN_CROPPED_EYES_IMG
+        path_train_labels = costants.PATH_CELEBA_TRAIN_LABELS
+        path_test_img = costants.PATH_CELEBA_TEST_CROPPED_EYES_IMG
+        path_test_labels = costants.PATH_CELEBA_TEST_LABELS
     else:
         raise Exception(
-            f'The dataset parameter of the function load_X_Y_train_test has a non possible value ({dataset}).\nThe dataset parameter has to be "cartoon" or "celeba".'
+            f'The dataset parameter of the function load_X_Y_train_test has a non possible value ({dataset}).\nThe dataset parameter has to be "cartoon", "cropped_eye_cartoon", "celeba", "cropped_mouth_celeba" or "cropped_eyes_celeba".'
         )
 
     # load flatten train ds
-    X_train = load_flatten_images_from_folder(path_train_img)
+    X_train = load_flatten_images_from_folder(path_train_img, image_dimensions)
     Y_train = load_ds_labels_from_csv(path_train_labels)
     Y_train = Y_train[label]
 
     # load flatten test ds
-    X_test = load_flatten_images_from_folder(path_test_img)
+    X_test = load_flatten_images_from_folder(path_test_img, image_dimensions)
     Y_test = load_ds_labels_from_csv(path_test_labels)
     Y_test = Y_test[label]
+
+    if scaling:
+        scaler = StandardScaler()
+        # fitting the scaler on the training set
+        # and scaling train and test sets with the same
+        # mean and variance (without refitting the scaler
+        # on the test set)
+        scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
 
     return X_train, Y_train, X_test, Y_test
 
 
-def load_flatten_images_from_folder(ds_path):
+def load_flatten_images_from_folder(ds_path, image_dimensions):
     """
     Reads the images from a folder and collects them in a flatten array form.
 
     Args:
         - ds_path (str): Path of the dataset folser
+        - image_dimensions (tuple): represents the shape that we want for the 
+        image of the dataset (in the case it's smaller then the original, 
+        resizing is perfomed)
 
     Returns:
         - np.array(array_flatten_images) (np.ndarray): Numpy array that contains
@@ -82,7 +114,9 @@ def load_flatten_images_from_folder(ds_path):
     for image_name in images_list:
         image_absolute_path = os.path.join(ds_path, image_name)
         img_array_form = cv2.imread(image_absolute_path)
-        img_flatten_array_form = img_array_form.flatten()
+        # resize image
+        resized_img_array_form = cv2.resize(img_array_form, image_dimensions)
+        img_flatten_array_form = resized_img_array_form.flatten()
         array_flatten_images.append(img_flatten_array_form)
 
     return np.array(array_flatten_images)

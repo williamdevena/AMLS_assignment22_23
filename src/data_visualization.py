@@ -3,10 +3,12 @@ This file contains all the functions used to visualize/plot data
 
 """
 
+import utilities.logging_utilities as logging_utilities
 import sys
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 from src.costants import (
     SEPARATOR,
@@ -16,8 +18,7 @@ from src.costants import (
     PATH_CELEBA_TEST_LABELS,
 )
 
-sys.path.append("../")
-import utilities.logging_utilities as logging_utilities
+# sys.path.append("../")
 
 
 def data_visualization_labels():
@@ -55,10 +56,6 @@ def histogram_df(df):
     plt.show()
 
 
-def boxplot_df(data):
-    pass
-
-
 def visualize_hist_distribution_csv(path_csv):
     """
     Reads a csv and plots a histogram from every variable in the csv
@@ -73,6 +70,39 @@ def visualize_hist_distribution_csv(path_csv):
     df = pd.read_csv(path_csv, sep=SEPARATOR)
     # .iloc[:, 2:] because we pass the entire dataframe except for the index col and the first col that is the name of the image (img_name)
     histogram_df(df.iloc[:, 2:])
+
+
+def visualize_clusters_dominant_pupil_colors(labels, centroids):
+    """
+
+    """
+    fig = plt.figure(figsize=(20, 10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    # c0 = np.array(labels == 0)
+    # c1 = np.array(labels == 1)
+    # c2 = np.array(labels == 2)
+    # c3 = np.array(labels == 3)
+    # c4 = np.array(labels == 4)
+    # c5 = np.array(labels == 5)
+
+    c_array = [np.array(labels == i) for i, _ in enumerate(centroids)]
+
+    map(ax.scatter, )
+
+    ax.scatter(X[c0][:, 0], X[c0][:, 1], X[c0][:, 2])
+    ax.scatter(X[c1][:, 0], X[c1][:, 1], X[c1][:, 2])
+    ax.scatter(X[c2][:, 0], X[c2][:, 1], X[c2][:, 2])
+    ax.scatter(X[c3][:, 0], X[c3][:, 1], X[c3][:, 2])
+    ax.scatter(X[c4][:, 0], X[c4][:, 1], X[c4][:, 2])
+    ax.scatter(X[c5][:, 0], X[c5][:, 1], X[c5][:, 2])
+    ax.scatter(centroids[:, 0], centroids[:, 1], centroids[:, 2],
+               marker='x', s=169, linewidths=10,
+               color='black', zorder=50)
+    ax.set_xlabel('R')
+    ax.set_ylabel('G')
+    ax.set_zlabel('B')
+    plt.show()
 
 
 def main():

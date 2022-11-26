@@ -3,6 +3,7 @@ This file contains all the functions used to prepare/clean data
 
 """
 
+import utilities.logging_utilities as logging_utilities
 import logging
 import os
 import sys
@@ -11,6 +12,7 @@ from pprint import pprint, pformat
 import cv2
 import numpy as np
 import pandas as pd
+from colorthief import ColorThief
 
 from src.costants import (
     PATH_CARTOON_TEST_IMG,
@@ -25,7 +27,6 @@ from src.costants import (
 )
 
 sys.path.append("../")
-import utilities.logging_utilities as logging_utilities
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
@@ -130,6 +131,100 @@ def reformat_csv_cartoon(original_path, new_path):
     df = df.reindex(columns=columns_titles)
     df.to_csv(new_path, sep=SEPARATOR)
     print(df)
+
+
+def count_dark_glasses(path_folder_images):
+    raise NotImplementedError
+
+
+# def count_pupil_colors(path_folder_images, pixel_y, pixel_x):
+#     """
+#     Tries to count the number of colors in the pupil to find out
+#     if the task of predicting the feature eye_color is possible
+#     to solve with a hard coded solution.
+
+#     Args:
+#         - path_folder_images (str): path of the folder that contains 
+#         the images of the dataset
+#         - pixel_y (int): y of the pixel we want to select
+#         - pixel_x (int): x of the pixel we want to select
+
+#     Returns: None
+
+#     """
+#     if not os.path.isdir(path_folder_images):
+#         raise FileNotFoundError(
+#             f"The directory {path_folder_images} does not exist.")
+
+#     logging.info(f"READING THE IMAGES IN THE FOLDER {path_folder_images}")
+#     images = os.listdir(path_folder_images)
+
+#     dict_count_pupil_colors = {}
+#     dict_images_pupil_colors = {}
+#     for file in os.listdir(path_folder_images):
+#         if file.endswith(".png"):
+#             img = cv2.imread(os.path.join(path_folder_images, file))
+#             pupil_color = img[pixel_y, pixel_x]
+#             tuple_pupil_color = tuple(pupil_color)
+#             # in this case get() returns dict_pupil_colors[pupil_color] if pupil_color
+#             # is in dict_pupil_colors 0 otherwise
+#             dict_count_pupil_colors[tuple_pupil_color] = dict_count_pupil_colors.get(
+#                 tuple_pupil_color, 0) + 1
+#             # dict_images_pupil_colors[tuple_pupil_color] =
+#             dict_images_pupil_colors.setdefault(
+#                 tuple_pupil_color, []).append(file)
+
+#     # logging.info(
+#     #     dict(sorted(dict_count_pupil_colors.items(), key=lambda item: item[1])))
+#     # pprint(sorted(dict_images_pupil_colors.items(),
+#     #        key=lambda item: dict_count_pupil_colors[item[0]]))
+
+#     return (
+#         dict(sorted(dict_count_pupil_colors.items(),
+#              key=lambda item: item[1], reverse=True)),
+#         dict(sorted(dict_images_pupil_colors.items(),
+#                     key=lambda item: dict_count_pupil_colors[item[0]], reverse=True))
+#     )
+
+
+def count_dominant_pupil_colors(path_folder_images):
+    """
+    Returns the dominant colors of the pupils in the dataset.
+
+    Args:
+        - path_folder_images (str): path of the folder that contains 
+        the images of the dataset
+
+    Returns:
+        - dict_dominant_colors (dict): a dictionary of this form {dominant_color: count}
+
+    """
+    if not os.path.isdir(path_folder_images):
+        raise FileNotFoundError(
+            f"The directory {path_folder_images} does not exist.")
+
+    logging.info(f"READING THE IMAGES IN THE FOLDER {path_folder_images}")
+    images = os.listdir(path_folder_images)
+
+    dict_dominant_colors = {}
+    i = 0
+    for file in os.listdir(path_folder_images):
+        if file.endswith(".png"):
+            print(f"Progress: {i} \ 10000", end='\r')
+            i += 1
+            # if i > 200:
+            #     break
+            color_thief = ColorThief(os.path.join(path_folder_images, file))
+            # get the dominant color
+            dominant_color = color_thief.get_color(quality=10)
+            # in this case get() returns dict_pupil_colors[pupil_color] if pupil_color
+            # is in dict_pupil_colors 0 otherwise
+            dict_dominant_colors[dominant_color] = dict_dominant_colors.get(
+                dominant_color, 0) + 1
+    dict_dominant_colors = dict(sorted(dict_dominant_colors.items(),
+                       key=lambda item: item[1], reverse=True))
+    
+    return dict_dominant_colors
 
 
 def main():
