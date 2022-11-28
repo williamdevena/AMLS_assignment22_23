@@ -24,7 +24,7 @@ def load_X_Y_train_test(dataset, label, image_dimensions, scaling=True):
     X_train, Y_train, X_test and Y_test (X_train and X_test in a flatten format).
 
     Args:
-        - dataset (str): could be "cartoon", "celeba" or "cropped_celeba" and indicates which
+        - dataset (str): could be "cartoon", "cropped_eye_cartoon", "celeba", "cropped_mouth_celeba" or "cropped_eyes_celeba" and indicates which
         dataset we want to load
         - labels (str): label of Y_train and Y_test that we want to load
         (both datasets have two labels)

@@ -22,3 +22,11 @@ COLS_CARTOON = ["img_name", "eye_color", "face_shape"]
 SEPARATOR = "\t"
 
 PATH_PLOTS_LOGS_FOLDER = "/Users/william.devena/Desktop/UCL/COURSES/AML1/ASSIGNMENT_PROJECT/AMLS_assignment22_23/plots_and_logs"
+
+DICT_COMBINATIONS_DATASETS_LABELS_DIMENSIONS = {
+    #"cartoon": (['eye_color', 'face_shape'], (500, 500)),
+    "celeba": (['gender', 'smiling'], (178, 218)),
+    "cropped_eye_cartoon": (['eye_color'], (25, 29)),
+    "cropped_mouth_celeba": (['gender', 'smiling'], (58, 33)),
+    "cropped_eyes_celeba": (['gender', 'smiling'], (98, 38)),
+}

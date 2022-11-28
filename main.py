@@ -6,10 +6,6 @@ from sklearn.cluster import KMeans, MiniBatchKMeans
 import numpy as np
 import matplotlib.pyplot as plt
 
-# import src.data_preparation as data_preparation
-# import src.data_visualization as data_visualization
-# import src.data_loading as data_loading
-# import src.image_manipulation as image_manipulation
 from src import (
     data_loading,
     data_preparation,
@@ -59,25 +55,16 @@ def main():
     """
     KNN
     """
-    knn.knn_for_every_dataset()
-
+    # knn.knn_for_every_dataset()
 
     '''
     KNN CROSS VALIDATION
     '''
-    # labels = "eye_color"
-    # # k_fold_param = 5
-    # k_fold_params = range(5, 11)
-    # # k-fold cross validation
-    # array_possible_hyperparameter = range(10, 101, 10)
-    # k_fold_params = range(5, 7)
-    # knn_plots_and_log_directory = "../plots_and_logs/test"
-    # knn.knn_k_fold_cross_validation_with_multiple_k(
-    #     k_fold_params,
-    #     array_possible_hyperparameter,
-    #     labels,
-    #     knn_plots_and_log_directory,
-    # )
+    k_fold_params = range(5, 10)
+    array_possible_hyperparameter = range(10, 101, 10)
+    knn.knn_k_fold_cross_validation_for_every_dataset(
+        k_fold_params, array_possible_hyperparameter
+    )
 
     '''
     PCA
