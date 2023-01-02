@@ -1,27 +1,49 @@
-import logging
-from sklearn.decomposition import PCA
-from lazypredict.Supervised import LazyClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.cluster import KMeans, MiniBatchKMeans
-import numpy as np
+# import logging
+# from sklearn.decomposition import PCA
+# #from lazypredict.Supervised import LazyClassifier
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.cluster import KMeans, MiniBatchKMeans
+# from sklearn.metrics import confusion_matrix
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import random
+# import os
+import torch
+import torch.optim as optim
+from torch import nn
+from torchvision import models
+# import seaborn as sns
 import matplotlib.pyplot as plt
 
 from src import (
     data_loading,
-    data_preparation,
-    data_visualization,
+    # data_preparation,
+    # data_visualization,
     costants,
-    image_manipulation
+    # image_manipulation,
+    seeds,
+    training
 )
 
-#import baselines.knn as knn
-#import baselines.mlp as mlp
-from baselines import knn
+from baselines import face_feature_detector
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+from baselines.knn import knn_for_every_dataset
+from baselines.svm import svm_for_every_dataset
+
+from models.simple_nn2 import SimpleNN2
+
+from assignment_dataset import AssignmentDataset
+from pytorch_dataset import PytorchDataset
+
+#logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 def main():
+    '''
+    SET SEEDS FOR REPRODUCABILITY
+    '''
+    seeds.set_seeds()
+
     '''
     DATA PREPARATION
     '''
@@ -55,16 +77,18 @@ def main():
     """
     KNN
     """
-    # knn.knn_for_every_dataset()
+    # knn_for_every_dataset()
 
     '''
     KNN CROSS VALIDATION
     '''
-    k_fold_params = range(5, 10)
-    array_possible_hyperparameter = range(10, 101, 10)
-    knn.knn_k_fold_cross_validation_for_every_dataset(
-        k_fold_params, array_possible_hyperparameter
-    )
+    # k_fold_params = range(5, 11)
+    # array_possible_hyperparameter = range(10, 101, 10)
+    # k_fold_params = range(5, 7)
+    # array_possible_hyperparameter = range(10, 31, 10)
+    # knn.knn_k_fold_cross_validation_for_every_dataset(
+    #     k_fold_params, array_possible_hyperparameter
+    # )
 
     '''
     PCA
@@ -97,20 +121,20 @@ def main():
     '''
     LAZY PREDICT
     '''
-    # dataset = "cropped_eyes_celeba"
-    # label = "smiling"
-    # width = 98
-    # height = 38
+    # dataset = "cropped_eye_cartoon"
+    # label = "eye_color"
+    # width = 25
+    # height = 29
     # image_dimensions = (width, height)
     # X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
     #     dataset, label, image_dimensions
     # )
     # clf = LazyClassifier(verbose=1, ignore_warnings=True, custom_metric=None)
 
-    # # X_train = X_train[:20]
-    # # Y_train = Y_train[:20]
-    # # X_test = X_test[:10]
-    # # Y_test = Y_test[:10]
+    # # # X_train = X_train[:20]
+    # # # Y_train = Y_train[:20]
+    # # # X_test = X_test[:10]
+    # # # Y_test = Y_test[:10]
     # models, predictions = clf.fit(X_train, X_test, Y_train, Y_test)
     # print(models)
 
@@ -158,6 +182,276 @@ def main():
     # ax.set_ylabel('G')
     # ax.set_zlabel('B')
     # plt.show()
+
+    """
+    DOMINANT COLOR SOLUTION 
+    """
+    # X_train_transformed, Y_train_transformed = image_manipulation.create_dominant_colors_dataset(
+    #     costants.PATH_CARTOON_TRAIN_CROPPED_EYE_IMG,
+    #     costants.PATH_CARTOON_TRAIN_LABELS
+    # )
+
+    # X_test_transformed, Y_test_transformed = image_manipulation.create_dominant_colors_dataset(
+    #     costants.PATH_CARTOON_TEST_CROPPED_EYE_IMG,
+    #     costants.PATH_CARTOON_TEST_LABELS
+    # )
+
+    # score = knn.knn(k=20, X_train=X_train_transformed, Y_train=Y_train_transformed,
+    #                 X_test=X_test_transformed, Y_test=Y_test_transformed)
+    # print(score)
+    # print(X_train_transformed.shape, Y_train_transformed.shape)
+    # print(X_train_transformed, Y_train_transformed)
+
+    # print(X_test_transformed.shape, Y_test_transformed.shape)
+    # print(X_test_transformed, Y_test_transformed)
+
+    """
+    SVM
+    """
+    # dataset_name = "cropped_mouth_celeba"
+    # label_name = "smiling"
+    # dataset = Dataset(name=dataset_name, label=label_name)
+
+    # X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
+    #     dataset_object=dataset, scaling=True
+    # )
+    # score = svm.svm(kernel='linear', C=1.0, X_train=X_train,
+    #                 Y_train=Y_train, X_test=X_test, Y_test=Y_test)
+    # print(score)
+
+    """
+    SVM ON ALL DATASETS
+    """
+    # svm_for_every_dataset()
+
+    """
+    SIMPLE NN
+    """
+    # batch_size = 4
+    # input_size = 58*33
+    # output_size = 1
+    # hidden_layers = [10000, 10000]
+    # activation = torch.nn.ReLU()
+    # model = SimpleNN(input_size=input_size, ouput_size=output_size,
+    #                  hidden_layers=hidden_layers, activation=activation)
+
+    # x = torch.rand(batch_size, input_size)
+    # out = model(x)
+    # print(out)
+
+    """
+    TEST PYTORCH DATASET
+    """
+    # dataset = PytorchDataset("celeba", "smiling", train_or_test="train")
+    # for x in range(10):
+    #     image, label = dataset.__getitem__(x)
+    #     print(image.dtype)
+    #     print(image.shape, label)
+
+    """
+    TEST TRAINING NN
+    """
+    # # "cropped_eye_cartoon": (['eye_color'
+    # train_set = PytorchDataset(
+    #     "cropped_eye_cartoon", "eye_color", train_or_test="train")
+
+    # batch_size = 4
+    # num_epochs = 50
+    # train_dataloader = torch.utils.data.DataLoader(train_set,
+    #                                                batch_size=batch_size,
+    #                                                shuffle=False)
+
+    # loss = nn.CrossEntropyLoss()
+    # model = models.efficientnet_b0()
+    # optimizer = optim.Adam(model.parameters(), lr=0.03)
+
+    # training.training_epochs(model=model,
+    #                          num_epochs=num_epochs,
+    #                          loss_function=loss,
+    #                          optimizer=optimizer,
+    #                          train_dataloader=train_dataloader)
+
+    """
+    TEST LOADING IMAGES (NON FLAT)
+    """
+    # dataset_name = "cartoon"
+    # label_name = "eye_color"
+    # dataset = AssignmentDataset(name=dataset_name, label=label_name)
+    # x1 = data_loading.load_images_from_folder(
+    #     ds_path=costants.PATH_CARTOON_TRAIN_IMG, image_dimensions=dataset.image_dimensions)
+    # x2 = data_loading.load_flatten_images_from_folder(
+    #     ds_path=costants.PATH_CARTOON_TRAIN_IMG, image_dimensions=dataset.image_dimensions)
+    # print(x1.shape, x2.shape)
+
+    """
+    FACE DETECTOR LANDMARKS
+    """
+    # import cv2
+    # import numpy as np
+    # import dlib
+
+    # # Load the detector
+    # detector = dlib.get_frontal_face_detector()
+
+    # # Load the predictor
+    # predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+    # # read the image
+    # img = cv2.imread("3785.jpg")
+
+    # # Convert image into grayscale
+    # gray = cv2.cvtColor(src=img, code=cv2.COLOR_BGR2GRAY)
+
+    # landmarks_array = []
+
+    # # Use detector to find landmarks
+    # faces = detector(gray)
+    # for face in faces:
+    #     x1 = face.left()  # left point
+    #     y1 = face.top()  # top point
+    #     x2 = face.right()  # right point
+    #     y2 = face.bottom()  # bottom point
+
+    #     # Create landmark object
+    #     landmarks = predictor(image=gray, box=face)
+    #     # print(landmarks)
+
+    #     # Loop through all the points
+    #     for n in range(0, 68):
+    #         x = landmarks.part(n).x
+    #         y = landmarks.part(n).y
+
+    #         landmarks_array.append((x, y))
+
+    #         # Draw a circle
+    #         cv2.circle(img=img, center=(x, y), radius=1,
+    #                    color=(0, 255, 0), thickness=-1)
+
+    # # print(landmarks_array)
+    # # show the image
+    # cv2.imshow(winname="Face", mat=img)
+
+    # # Delay between every fram
+    # cv2.waitKey(delay=0)
+
+    # # Close all windows
+    # cv2.destroyAllWindows()
+
+    """
+    FACE DETECTOR TEST SVM AND KNN
+    """
+    # # Load the detector
+    # detector = dlib.get_frontal_face_detector()
+
+    # # Load the predictor
+    # predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+    # label = "face_shape"
+    # image_dimensions = (500, 500)
+    # #image_dimensions = (178, 218)
+
+    # # range_features = range(0, 68) # ALL
+    # #range_features = range(37, 68) # EYES AND MOUTH
+    # #range_features = range(37, 48) # EYES
+    # #range_features = range(49, 68) # MOUTH
+    # range_features = range(0, 17) # CHIN
+
+    # X_train, Y_train = face_feature_detector.create_face_features_dataset(ds_path=costants.PATH_CARTOON_TRAIN_IMG,
+    #                                                 csv_path=costants.PATH_CARTOON_TRAIN_LABELS,
+    #                                                 label=label,
+    #                                                 image_dimensions=image_dimensions,
+    #                                                 detector=detector,
+    #                                                 predictor=predictor,
+    #                                                 range_features=range_features)
+
+    # X_test, Y_test = face_feature_detector.create_face_features_dataset(ds_path=costants.PATH_CARTOON_TEST_IMG,
+    #                                             csv_path=costants.PATH_CARTOON_TEST_LABELS,
+    #                                             label=label,
+    #                                             image_dimensions=image_dimensions,
+    #                                             detector=detector,
+    #                                             predictor=predictor,
+    #                                             range_features=range_features)
+
+    # score = svm.svm(kernel='rbf', C=1.0, X_train=X_train,
+    #                 Y_train=Y_train, X_test=X_test, Y_test=Y_test)
+    # print(score[1], score[2])
+
+    # score = knn.knn(k=30, X_train=X_train,
+    #                 Y_train=Y_train, X_test=X_test, Y_test=Y_test)
+    # print(score[1], score[2])
+
+    """
+    CROP WITH FACE DETECTOR
+    """
+    # import dlib
+    # # Load the detector
+    # detector = dlib.get_frontal_face_detector()
+
+    # # Load the predictor
+    # predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+    # # range_features = range(49, 68)
+    # # resized_shape = (48, 25)
+
+    # range_features = range(37, 48)
+    # resized_shape = (65, 25)
+
+    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
+    #                                                                   costants.PATH_CELEBA_TEST_DYN_CROPPED_EYES_IMG,
+    #                                                                   ".jpg",
+    #                                                                   detector,
+    #                                                                   predictor,
+    #                                                                   range_features,
+    #                                                                   resized_shape
+    #                                                                  )
+
+    """
+    TEST MLP
+    """
+    from sklearn.neural_network import MLPClassifier
+    import dlib
+
+    # Load the detector
+    detector = dlib.get_frontal_face_detector()
+
+    # Load the predictor
+    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+    # label = "face_shape"
+    # image_dimensions = (500, 500)
+
+    label = "gender"
+    image_dimensions = (178, 218)
+
+    range_features = range(0, 68)  # ALL
+    # range_features = range(37, 68) # EYES AND MOUTH
+    # range_features = range(37, 48) # EYES
+    # range_features = range(49, 68) # MOUTH
+    # range_features = range(0, 17) # CHIN
+
+    X_train, Y_train = face_feature_detector.create_face_features_dataset(ds_path=costants.PATH_CELEBA_TRAIN_IMG,
+                                                                          csv_path=costants.PATH_CELEBA_TRAIN_LABELS,
+                                                                          label=label,
+                                                                          image_dimensions=image_dimensions,
+                                                                          detector=detector,
+                                                                          predictor=predictor,
+                                                                          range_features=range_features)
+
+    X_test, Y_test = face_feature_detector.create_face_features_dataset(ds_path=costants.PATH_CELEBA_TEST_IMG,
+                                                                        csv_path=costants.PATH_CELEBA_TEST_LABELS,
+                                                                        label=label,
+                                                                        image_dimensions=image_dimensions,
+                                                                        detector=detector,
+                                                                        predictor=predictor,
+                                                                        range_features=range_features)
+
+    mlp = MLPClassifier(hidden_layer_sizes=(200, 300, 400, 500, 600),
+                        random_state=1, max_iter=500,
+                        verbose=True, solver="lbfgs")
+    mlp.fit(X_train, Y_train)
+    training_acc = mlp.score(X_train, Y_train)
+    score = mlp.score(X_test, Y_test)
+    print(training_acc, score)
 
 
 if __name__ == "__main__":

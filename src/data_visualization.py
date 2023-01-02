@@ -9,6 +9,8 @@ import sys
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 from src.costants import (
     SEPARATOR,
@@ -103,6 +105,28 @@ def visualize_clusters_dominant_pupil_colors(labels, centroids):
     ax.set_ylabel('G')
     ax.set_zlabel('B')
     plt.show()
+
+
+def plot_confusion_matrix(Y, Y_pred, labels, path_plot):
+    """
+    Generates and plots the confusion matrix
+
+    Args:
+        - Y (np.ndarray): True labels
+        - Y_pred (np.ndarray): Predicted labels
+        - labels (List): contains the names of the labels (example: ['smiling', 'non smiling'])
+        - path_plot (str): path where to save the plot
+
+    Returns: None
+    """
+    #print(Y, Y_pred)
+    # print(np.unique(Y_pred, return_counts=True))
+    cf_matrix = confusion_matrix(Y, Y_pred)
+    # print(cf_matrix)
+    sns.heatmap(cf_matrix, annot=True, fmt='g',
+                xticklabels=labels, yticklabels=labels)
+    plt.savefig(path_plot)
+    plt.close()
 
 
 def main():

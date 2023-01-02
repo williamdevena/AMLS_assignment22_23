@@ -1,9 +1,6 @@
-from src import (
-    data_loading,
-    costants
-)
-
-from utilities import logging_utilities
+"""
+This module contains all the functions used to run knn models as a baseline model
+"""
 
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
@@ -15,8 +12,18 @@ import logging
 import json
 from pprint import pformat
 
+from src import (
+    data_loading,
+    data_visualization,
+    costants
+)
 
-sys.path.append("../")
+from utilities import logging_utilities
+
+from assignment_dataset import AssignmentDataset
+
+
+# sys.path.append("../")
 
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
@@ -44,25 +51,48 @@ def knn_for_every_dataset():
     """
     logging_utilities.print_name_stage_project("KNN")
     path_directory = os.path.join(
-        costants.PATH_PLOTS_LOGS_FOLDER, "knn_results")
+        costants.PATH_PLOTS_LOGS_FOLDER, "knn")
     if not os.path.isdir(path_directory):
         os.mkdir(path_directory)
+    path_directory_conf_matrix = os.path.join(
+        path_directory, "conf_matrix")
+    if not os.path.isdir(path_directory_conf_matrix):
+        os.mkdir(path_directory_conf_matrix)
+    file_name = f"knn_results"
+    final_path = os.path.join(path_directory, file_name)
+
     array_k = [20, 30, 40]
-    for key, value in costants.DICT_COMBINATIONS_DATASETS_LABELS_DIMENSIONS.items():
-        dataset = key
+    scores = {}
+    for key, value in AssignmentDataset.possible_combinations.items():
+        dataset_name = key
         array_labels = value[0]
-        image_dimensions = value[1]
-        for label in array_labels:
-            file_name = f"knn_{dataset}_{label}"
-            final_path = os.path.join(path_directory, file_name)
-            scores = []
+        scores[dataset_name] = {}
+        for label_name in array_labels:
+            scores[dataset_name][label_name] = []
+            dict_Y_pred = {}
+            conf_matrix_plot_file = f"{dataset_name}_{label_name}"
+            conf_matrix_plot_path = os.path.join(
+                path_directory_conf_matrix, conf_matrix_plot_file)
+
+            dataset = AssignmentDataset(name=dataset_name, label=label_name)
             X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
-                dataset, label, image_dimensions
+                dataset_object=dataset
             )
+            labels_value = AssignmentDataset.labels_values[label_name]
             for k in array_k:
-                score = knn(k, X_train, Y_train, X_test, Y_test)
-                scores.append((k, score))
-            write_knn_results(final_path, dataset, label, scores)
+                Y_pred, training_acc, testing_acc = knn(k, X_train,
+                                                        Y_train, X_test,
+                                                        Y_test)
+                scores[dataset_name][label_name].append((k, training_acc,
+                                                         testing_acc))
+                dict_Y_pred[k] = Y_pred
+
+            best_k = max(scores[dataset_name][label_name],
+                         key=lambda x: x[0])[0]
+            best_Y_pred = dict_Y_pred[best_k]
+            data_visualization.plot_confusion_matrix(
+                Y=Y_test, Y_pred=best_Y_pred, labels=labels_value, path_plot=conf_matrix_plot_path)
+    write_knn_results(final_path, dataset_name, label_name, scores)
 
 
 def knn(k, X_train, Y_train, X_test, Y_test):
@@ -78,13 +108,17 @@ def knn(k, X_train, Y_train, X_test, Y_test):
         - Y_test (np.ndarray): testing labels (for the final evaluation of the best hyperparameter selected)
 
     Returns:
-        - score (float): accuracy of the model on the test dataset (X_test)
+        - Y_pred (np.ndarray): prediction on the test data (X_test)
+        - training_acc (np.ndarray): accuracy on the trainig data (X_train)
+        - testing_acc (float): accuracy of the model on the test dataset (X_test)
     """
     knn_model = KNeighborsClassifier(n_neighbors=k)
     knn_model.fit(X_train, Y_train)
-    score = knn_model.score(X_test, Y_test)
+    Y_pred = knn_model.predict(X_test)
+    training_acc = knn_model.score(X_train, Y_train)
+    testing_acc = knn_model.score(X_test, Y_test)
 
-    return score
+    return Y_pred, training_acc, testing_acc
 
 
 def knn_k_fold_cross_validation_for_every_dataset(
@@ -110,17 +144,26 @@ def knn_k_fold_cross_validation_for_every_dataset(
 
     Returns: None
     """
-    logging_utilities.print_name_stage_project("KNN MULTIPLE K-FOLD CROSS VALIDATION")
+
+    ######
+    # à## RISOLVERE CHE CON CARTOO NON CROPPATO VA IN SEGMENTATION FAUL
+    # PROB. USARE MINIBATCHKNN
+
+    logging_utilities.print_name_stage_project(
+        "KNN MULTIPLE K-FOLD CROSS VALIDATION")
     path_directory = os.path.join(
         costants.PATH_PLOTS_LOGS_FOLDER, "knn_cross_validation")
     if not os.path.isdir(path_directory):
         os.mkdir(path_directory)
 
-    for key, value in costants.DICT_COMBINATIONS_DATASETS_LABELS_DIMENSIONS.items():
+    # for key, value in costants.DICT_COMBINATIONS_DATASETS_LABELS_DIMENSIONS.items():
+    for key, value in AssignmentDataset.possible_combinations.items():
         dataset = key
         array_labels = value[0]
         image_dimensions = value[1]
         for label in array_labels:
+            logging.info(
+                f"Performing k-fold cross validation with knn on the {dataset} dataset with the {label} target variable")
             X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
                 dataset, label, image_dimensions
             )
@@ -239,9 +282,11 @@ def knn_k_fold_cross_validation(
     best_hyperparam = max(
         array_hyperparameter_and_scores, key=lambda x: x[1]
     )[0]
-    best_model = KNeighborsClassifier(n_neighbors=best_hyperparam)
-    best_model.fit(X_train, Y_train)
-    final_score_best_hyperparam = best_model.score(X_test, Y_test)
+    _, _, final_score_best_hyperparam = knn(
+        k=best_hyperparam, X_train=X_train, Y_train=Y_train, X_test=X_test, Y_test=Y_test)
+    # best_model = KNeighborsClassifier(n_neighbors=best_hyperparam)
+    # best_model.fit(X_train, Y_train)
+    # final_score_best_hyperparam = best_model.score(X_test, Y_test)
 
     return (
         array_hyperparameter_and_scores,
@@ -269,15 +314,21 @@ def plot_knn_k_fold_cross_validation(
     Returns:
         - None
     """
-    for k_fold_param, array_hyperparams_and_scores, best_hyperparam, final_score_best_model in results_of_every_k_fold_param:
+    for k_fold_param in results_of_every_k_fold_param:
+        (array_hyperparams_and_scores, best_hyperparam,
+            final_score_best_model) = results_of_every_k_fold_param[k_fold_param]
         hyperparams, scores = zip(*array_hyperparams_and_scores)
         plt.plot(hyperparams, scores)
-        plt.title(f"k-fold on {dataset} with {label} target")
+    #plt.yticks(range(10, 101, 10))
+    plt.title(f"k-fold on {dataset} dataset with {label} target")
     plt.legend(
-        [f"k = {k}" for k in k_fold_param],
+        [f"k = {k}" for k in results_of_every_k_fold_param],
         loc="best"
     )
+    plt.xlabel("Hyperparameter K of KNN")
+    plt.ylabel("Score")
     plt.savefig(path_plot)
+    plt.close()
     logging.info(f"Saved plot of results in {path_plot}")
 
 
@@ -302,16 +353,21 @@ def write_knn_k_fold_cross_validation(
 
 
     """
-    best_k_fold = max(results_of_every_k_fold_param.values(),
-                      key=lambda x: x[2])[0, 2]
+    # print(results_of_every_k_fold_param.items())
+    best_k_fold = max(results_of_every_k_fold_param,
+                      key=lambda x: results_of_every_k_fold_param[x][2])
+    # best_k_fold = results_of_every_k_fold_param[best_k_fold]
+    best_overall_hyperparam = results_of_every_k_fold_param[best_k_fold][1]
+    best_overall_score = results_of_every_k_fold_param[best_k_fold][2]
     with open(path_file, "w") as f:
         lines = [
             f"This file contains the scores of multiple executions of k-fold cross validation (for different k's) done on {dataset} dataset and {label} target variable.\n",
-            f"The best k (k-fold parameter) was {best_k_fold[0]}, obtaining a score of {best_k_fold[1]}\n\n"
+            f"SUMMARY OF THE RESULTS: The best k (k-fold parameter) was {best_k_fold}: obtained a score of {best_overall_score}, with k = {best_overall_hyperparam}\n\n"
 
         ]
-
-        for k_fold_param, array_hyperparams_and_scores, best_hyperparam, final_score_best_model in results_of_every_k_fold_param:
+        for k_fold_param in results_of_every_k_fold_param:
+            (array_hyperparams_and_scores, best_hyperparam,
+             final_score_best_model) = results_of_every_k_fold_param[k_fold_param]
             single_k_fold_lines = [
                 f"{k_fold_param}-FOLD\n",
             ]
@@ -326,6 +382,7 @@ def write_knn_k_fold_cross_validation(
                 f"The best model tested on the entire test dataset has an accuracy of {final_score_best_model}.\n\n"
             )
             lines = lines + single_k_fold_lines
+        f.writelines(lines)
     logging.info(f"Wrote the results in {path_file}")
 
 
@@ -337,29 +394,34 @@ def write_knn_results(
     a certain label with multiple k parameters.
 
     Args:
-        file_path (str): path of the file we want to write
-        dataset (str): represents which dataset are the results on that we
+        - file_path (str): path of the file we want to write
+        - dataset (str): represents which dataset are the results on that we
         are writing
-        label (str): represents the label that the results regard
-        scores (list): contains the accuracies of the knn models on the testing data
+        - label (str): represents the label that the results regard
+        - scores (list): contains the accuracies of the predictions on the test
+        data (Y_pred), the accuracy on training data and the accuracy on the
+        testing data for the every knn model tested
 
     Returns: None
     """
-    logging.info(f"Writing results on {file_path}")
-    best_k = max(scores, key=lambda x: x[1])
+    logging.info(f"\nWriting results on {file_path}\n")
     with open(file_path, "w") as f:
         lines = [
-            f"This file contains the scores calculated for KNN models applied on:\n",
-            "\n",
-            f"- DATASET: {dataset}\n",
-            f"- LABEL: {label}\n",
-            "\n"
+            f"This file contains the scores of KNN models:\n",
         ]
-        score_lines = [f"- k = {k}, score = {score}\n" for k, score in scores]
-        lines = lines + score_lines
-        lines.append(
-            f"\nBEST MODEL: k = {best_k[0]}, score = {best_k[1]}"
-        )
+
+        for dataset in scores:
+            for label in scores[dataset]:
+                best_k = max(scores[dataset][label], key=lambda x: x[2])
+                lines.append(f"\n\n- DATASET: {dataset}\n")
+                lines.append(f"- LABEL: {label}\n\n")
+                score_lines = [
+                    f"- k = {k}, training accuracy = {train_acc}, score = {test_acc}\n" for k, train_acc, test_acc in scores[dataset][label]]
+                lines = lines + score_lines
+                lines.append(
+                    f"\nBEST MODEL: k = {best_k[0]}, training accuracy = {best_k[1]}, score = {best_k[2]}"
+                )
+
         f.writelines(lines)
 
 

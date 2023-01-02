@@ -1,3 +1,6 @@
 plots_and_logs/*
 mlruns/*
-scores_log/*
+lazy_predict_scores_log/*
+notebooks/*
+
+shape_predictor_68*

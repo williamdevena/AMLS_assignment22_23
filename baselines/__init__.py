@@ -1,1 +1,1 @@
-import baselines.knn
+from baselines import knn
