@@ -98,6 +98,11 @@ def retrieve_img_and_labels_paths(dataset_object):
         path_train_labels = costants.PATH_CARTOON_TRAIN_LABELS
         path_test_img = costants.PATH_CARTOON_TEST_CROPPED_EYE_IMG
         path_test_labels = costants.PATH_CARTOON_TEST_LABELS
+    elif dataset_object.name == "dyn_cropped_eye_cartoon":
+        path_train_img = costants.PATH_CARTOON_TRAIN_DYN_CROPPED_EYE_IMG
+        path_train_labels = costants.PATH_CARTOON_TRAIN_LABELS
+        path_test_img = costants.PATH_CARTOON_TEST_DYN_CROPPED_EYE_IMG
+        path_test_labels = costants.PATH_CARTOON_TEST_LABELS
     elif dataset_object.name == "celeba":
         path_train_img = costants.PATH_CELEBA_TRAIN_IMG
         path_train_labels = costants.PATH_CELEBA_TRAIN_LABELS
@@ -204,6 +209,32 @@ def load_flatten_images_from_folder(ds_path, image_dimensions):
     return array_flatten_images
 
 
+def load_entire_ds_from_csv(csv_path, separator=costants.SEPARATOR):
+    """
+    Reads a csv containg a dataset (both X and Y) where the last two
+    column are the labels
+
+    Args:
+        - csv_path (str): path of the csv file
+        - separator (str, optional): separator fro the function pd.read_csv.
+        Defaults to costants.SEPARATOR.
+
+    Returns:
+        - dataset_dict (Dict): contains the dataset (both X and Y)
+    """
+    logging.info(f"- Loading dataset from {csv_path}")
+    dataset_dict = {}
+    dataset_df = pd.read_csv(csv_path, sep=separator)
+    dataset = dataset_df.to_numpy()
+    dataset_dict['X'] = dataset[:, 1:-2]
+    dataset_dict['Y'] = {}
+
+    for label in dataset_df.columns[-2:]:
+        dataset_dict['Y'][label] = dataset_df[label].to_numpy()
+
+    return dataset_dict
+
+
 def load_ds_labels_from_csv(csv_path, separator=costants.SEPARATOR):
     """
     Reads a csv file that contains labels of a dataset and returns
@@ -257,6 +288,27 @@ def scale_train_test_datasets(X_train, X_test):
     X_test_scaled = scaler.transform(X_test)
 
     return X_train_scaled, X_test_scaled
+
+
+def scale_dataset(X):
+    """
+    Scales and transforms a dataset with the following procedure:
+
+    z = (x - u) / s
+
+    where u is the mean of the data distribution and s is the standard deviation.
+
+    Args:
+        - X (np.ndarray): Contains the samples in a flatten shape
+
+    Returns:
+        - X_scaled (np.ndarray): Scaled version of X
+    """
+    scaler = StandardScaler()
+    scaler.fit(X)
+    X_scaled = scaler.transform(X)
+
+    return X_scaled
 
 
 def main():

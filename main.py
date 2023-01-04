@@ -297,7 +297,7 @@ def main():
     # predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
     # # read the image
-    # img = cv2.imread("3785.jpg")
+    # img = cv2.imread("face2.png")
 
     # # Convert image into grayscale
     # gray = cv2.cvtColor(src=img, code=cv2.COLOR_BGR2GRAY)
@@ -317,7 +317,7 @@ def main():
     #     # print(landmarks)
 
     #     # Loop through all the points
-    #     for n in range(0, 68):
+    #     for n in range(0, 18):
     #         x = landmarks.part(n).x
     #         y = landmarks.part(n).y
 
@@ -393,65 +393,103 @@ def main():
     # # range_features = range(49, 68)
     # # resized_shape = (48, 25)
 
-    # range_features = range(37, 48)
-    # resized_shape = (65, 25)
+    # range_features = range(42, 48)
+    # resized_shape = (30, 30)
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
-    #                                                                   costants.PATH_CELEBA_TEST_DYN_CROPPED_EYES_IMG,
-    #                                                                   ".jpg",
+    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TEST_IMG,
+    #                                                                   costants.PATH_CARTOON_TEST_DYN_CROPPED_EYE_IMG,
+    #                                                                   ".png",
     #                                                                   detector,
     #                                                                   predictor,
     #                                                                   range_features,
     #                                                                   resized_shape
-    #                                                                  )
+    #                                                                   )
 
     """
-    TEST MLP
+    CREATE AND WRITE FACE FEATURES DATASETS
     """
-    from sklearn.neural_network import MLPClassifier
-    import dlib
 
-    # Load the detector
-    detector = dlib.get_frontal_face_detector()
+    # import dlib
 
-    # Load the predictor
-    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+    # # Load the detector
+    # detector = dlib.get_frontal_face_detector()
+
+    # # Load the predictor
+    # predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
     # label = "face_shape"
     # image_dimensions = (500, 500)
+    # train_ds_path = costants.PATH_CARTOON_TRAIN_IMG
+    # train_csv_path = costants.PATH_CARTOON_TRAIN_LABELS
+    # test_ds_path = costants.PATH_CARTOON_TEST_IMG
+    # test_csv_path = costants.PATH_CARTOON_TEST_LABELS
 
-    label = "gender"
-    image_dimensions = (178, 218)
+    # label = "gender"
+    # image_dimensions = (178, 218)
+    # train_ds_path = costants.PATH_CELEBA_TRAIN_IMG
+    # train_csv_path = costants.PATH_CELEBA_TRAIN_LABELS
+    # test_ds_path = costants.PATH_CELEBA_TEST_IMG
+    # test_csv_path = costants.PATH_CELEBA_TEST_LABELS
 
-    range_features = range(0, 68)  # ALL
-    # range_features = range(37, 68) # EYES AND MOUTH
-    # range_features = range(37, 48) # EYES
-    # range_features = range(49, 68) # MOUTH
-    # range_features = range(0, 17) # CHIN
+    # range_features = range(0, 68)  # ALL
+    # # range_features = range(37, 68) # EYES AND MOUTH
+    # # range_features = range(37, 48) # EYES
+    # # range_features = range(49, 68) # MOUTH
+    # # range_features = range(0, 17) # CHIN
 
-    X_train, Y_train = face_feature_detector.create_face_features_dataset(ds_path=costants.PATH_CELEBA_TRAIN_IMG,
-                                                                          csv_path=costants.PATH_CELEBA_TRAIN_LABELS,
-                                                                          label=label,
-                                                                          image_dimensions=image_dimensions,
-                                                                          detector=detector,
-                                                                          predictor=predictor,
-                                                                          range_features=range_features)
+    # CREATE AND WRITE FACE FEATURES DATASETS
+    # face_feature_detector.create_and_write_face_features_dataset(detector=detector,
+    #                                                              predictor=predictor,
+    #                                                              range_features=range_features)
 
-    X_test, Y_test = face_feature_detector.create_face_features_dataset(ds_path=costants.PATH_CELEBA_TEST_IMG,
-                                                                        csv_path=costants.PATH_CELEBA_TEST_LABELS,
-                                                                        label=label,
-                                                                        image_dimensions=image_dimensions,
-                                                                        detector=detector,
-                                                                        predictor=predictor,
-                                                                        range_features=range_features)
+    """
+    MLP
+    """
+    from sklearn.neural_network import MLPClassifier
 
-    mlp = MLPClassifier(hidden_layer_sizes=(200, 300, 400, 500, 600),
-                        random_state=1, max_iter=500,
-                        verbose=True, solver="lbfgs")
-    mlp.fit(X_train, Y_train)
-    training_acc = mlp.score(X_train, Y_train)
-    score = mlp.score(X_test, Y_test)
-    print(training_acc, score)
+    # LOAD DS FROM CSV OF FEATURE FACE
+    label = 'face_shape'
+    train_csv_path = costants.PATH_CARTOON_TRAIN_FACE_FEATURES
+    test_csv_path = costants.PATH_CARTOON_TEST_FACE_FEATURES
+
+    train_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=train_csv_path)
+    test_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=test_csv_path)
+
+    feature_slice = slice(0, 33)
+    X_train = train_dataset_dict['X'][:, feature_slice]
+    X_test = test_dataset_dict['X'][:, feature_slice]
+    print(X_train.shape, X_test.shape)
+
+    Y_train = train_dataset_dict['Y'][label]
+    Y_test = test_dataset_dict['Y'][label]
+
+    mlp = MLPClassifier(hidden_layer_sizes=(300, 600, 300, 100),
+                        random_state=1, max_iter=100,
+                        verbose=False, solver="lbfgs",
+                        warm_start=True)
+
+    train_acc_array = []
+    test_acc_array = []
+    for x in range(100):
+        mlp.fit(X_train, Y_train)
+        training_acc = mlp.score(X_train, Y_train)
+        score = mlp.score(X_test, Y_test)
+        train_acc_array.append(training_acc)
+        test_acc_array.append(score)
+        print(training_acc, score)
+
+        if x % 10 == 9:
+            plt.plot(train_acc_array)
+            plt.plot(test_acc_array)
+            plt.savefig("test_mlp_training")
+            plt.close()
+
+    print(train_acc_array, test_acc_array)
+    plt.plot(train_acc_array)
+    plt.plot(test_acc_array)
+    plt.savefig("test_mlp_training")
 
 
 if __name__ == "__main__":
