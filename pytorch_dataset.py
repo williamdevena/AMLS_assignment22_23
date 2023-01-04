@@ -25,18 +25,8 @@ class PytorchDataset(Dataset):
         self.train_or_test = train_or_test
 
         path_train_img, path_train_labels, path_test_img, path_test_labels, use_dominant_color_dataset = retrieve_img_and_labels_paths(
-            dataset_object=self.dataset_object)
-
-        # if self.train_or_test == "train":
-        #     self.X = load_flatten_images_from_folder(
-        #         path_train_img, self.dataset_object.image_dimensions)
-        #     self.Y = load_ds_labels_from_csv(path_train_labels)
-        #     self.Y = self.Y[self.dataset_object.label]
-        # elif self.train_or_test == "test":
-        #     self.X = load_flatten_images_from_folder(
-        #         path_test_img, self.dataset_object.image_dimensions)
-        #     self.Y = load_ds_labels_from_csv(path_test_labels)
-        #     self.Y = self.Y[self.dataset_object.label]
+            dataset_object=self.dataset_object
+        )
 
         if self.train_or_test == "train":
             self.X = load_images_from_folder(

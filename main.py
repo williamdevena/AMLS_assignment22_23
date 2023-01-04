@@ -15,6 +15,7 @@ from torchvision import models
 # import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+import cv2
 
 from src import (
     data_loading,
@@ -223,7 +224,7 @@ def main():
     """
     SVM ON ALL DATASETS
     """
-    # svm_for_every_dataset()
+    svm_for_every_dataset(use_canny_filter=False)
 
     """
     SIMPLE NN
@@ -446,34 +447,34 @@ def main():
     """
     MLP ON FACE FEATURES
     """
-    from sklearn.neural_network import MLPClassifier
+    # from sklearn.neural_network import MLPClassifier
 
-    # LOAD DS FROM CSV OF FEATURE FACE
-    label = 'face_shape'
-    train_csv_path = costants.PATH_CARTOON_TRAIN_FACE_FEATURES
-    test_csv_path = costants.PATH_CARTOON_TEST_FACE_FEATURES
+    # # LOAD DS FROM CSV OF FEATURE FACE
+    # label = 'face_shape'
+    # train_csv_path = costants.PATH_CARTOON_TRAIN_FACE_FEATURES
+    # test_csv_path = costants.PATH_CARTOON_TEST_FACE_FEATURES
 
-    # label = 'smiling'
-    # train_csv_path = costants.PATH_CELEBA_TRAIN_FACE_FEATURES
-    # test_csv_path = costants.PATH_CELEBA_TEST_FACE_FEATURES
+    # # label = 'smiling'
+    # # train_csv_path = costants.PATH_CELEBA_TRAIN_FACE_FEATURES
+    # # test_csv_path = costants.PATH_CELEBA_TEST_FACE_FEATURES
 
-    # (0, 136) for all features
-    # (0, 34) for chin features
+    # # (0, 136) for all features
+    # # (0, 34) for chin features
 
-    feature_slice = slice(0, 136)
-    #feature_slice = slice(0, 136)
+    # feature_slice = slice(0, 136)
+    # #feature_slice = slice(0, 136)
 
-    train_dataset_dict = data_loading.load_entire_ds_from_csv(
-        csv_path=train_csv_path)
-    test_dataset_dict = data_loading.load_entire_ds_from_csv(
-        csv_path=test_csv_path)
+    # train_dataset_dict = data_loading.load_entire_ds_from_csv(
+    #     csv_path=train_csv_path)
+    # test_dataset_dict = data_loading.load_entire_ds_from_csv(
+    #     csv_path=test_csv_path)
 
-    X_train = train_dataset_dict['X'][:, feature_slice]
-    X_test = test_dataset_dict['X'][:, feature_slice]
-    print(X_train.shape, X_test.shape)
+    # X_train = train_dataset_dict['X'][:, feature_slice]
+    # X_test = test_dataset_dict['X'][:, feature_slice]
+    # print(X_train.shape, X_test.shape)
 
-    Y_train = train_dataset_dict['Y'][label]
-    Y_test = test_dataset_dict['Y'][label]
+    # Y_train = train_dataset_dict['Y'][label]
+    # Y_test = test_dataset_dict['Y'][label]
 
     # Y_train = np.where(Y_train == -1, 0, Y_train)
     # Y_test = np.where(Y_test == -1, 0, Y_test)
@@ -506,33 +507,33 @@ def main():
     #                     learning_rate_init=0.01)
 
     # for face shape
-    mlp = MLPClassifier(hidden_layer_sizes=(100, 100, 100, 100),  # 100
-                        random_state=1, max_iter=1000,  # a 1500 si ferma
-                        verbose=True, solver="adam",
-                        early_stopping=True,
-                        validation_fraction=0.2,
-                        n_iter_no_change=1000,
-                        # warm_start=True,
-                        alpha=0.1,
-                        learning_rate_init=0.01)
+    # mlp = MLPClassifier(hidden_layer_sizes=(100, 100, 100, 100),  # 100
+    #                     random_state=1, max_iter=1000,  # a 1500 si ferma
+    #                     verbose=True, solver="adam",
+    #                     early_stopping=True,
+    #                     validation_fraction=0.2,
+    #                     n_iter_no_change=1000,
+    #                     # warm_start=True,
+    #                     alpha=0.1,
+    #                     learning_rate_init=0.01)
 
-    mlp.fit(X_train, Y_train)
+    # mlp.fit(X_train, Y_train)
 
-    plt.plot(mlp.loss_curve_)
-    plt.savefig("loss_curve")
-    plt.close()
+    # plt.plot(mlp.loss_curve_)
+    # plt.savefig("loss_curve")
+    # plt.close()
 
-    plt.plot(mlp.validation_scores_)
-    plt.savefig("validation scores")
-    plt.close()
+    # plt.plot(mlp.validation_scores_)
+    # plt.savefig("validation scores")
+    # plt.close()
 
-    training_acc = mlp.score(X_train, Y_train)
-    score = mlp.score(X_test, Y_test)
-    Y_pred = mlp.predict(X_test)
-    print(training_acc, score)
+    # training_acc = mlp.score(X_train, Y_train)
+    # score = mlp.score(X_test, Y_test)
+    # Y_pred = mlp.predict(X_test)
+    # print(training_acc, score)
 
-    data_visualization.plot_confusion_matrix(
-        Y_test, Y_pred, ["0", "1", "2", "3", "4"], "confusion_matrix")
+    # data_visualization.plot_confusion_matrix(
+    #     Y_test, Y_pred, ["0", "1", "2", "3", "4"], "confusion_matrix")
 
     """
     MLP on images
@@ -571,6 +572,25 @@ def main():
     # training_acc = mlp.score(X_train, Y_train)
     # score = mlp.score(X_test, Y_test)
     # print(training_acc, score)
+
+    """
+    TEST CANNY FILTER
+    """
+    # img = cv2.imread("face4.jpg", cv2.IMREAD_GRAYSCALE)
+    # min_threshold = np.mean(img)*0.66
+    # max_threshold = np.mean(img)*1.33
+
+    # img = cv2.Canny(image=img, threshold1=min_threshold,
+    #                 threshold2=max_threshold)
+
+    # cv2.imshow(mat=img, winname="Edges")
+    # # cv2.imshow(winname="Face", mat=img)
+
+    # # # Delay between every fram
+    # cv2.waitKey(delay=0)
+
+    # # # Close all windows
+    # cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

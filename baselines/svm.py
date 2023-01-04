@@ -15,7 +15,7 @@ from src import (
 
 from assignment_dataset import AssignmentDataset
 
-def svm_for_every_dataset():
+def svm_for_every_dataset(use_canny_filter=False):
     """
     Train and tests SVM and writes the results for every combination of dataset
     and target label:
@@ -30,7 +30,8 @@ def svm_for_every_dataset():
         - 'cropped eye cartoon' dataset and 'eye_color' label
         - 'cropped eye cartoon' dataset and 'face_shape' label
     
-    Args: None
+    Args:
+        - use_canny_filter (bool): if True Canny filter is applied to the images
     
     Returns: None
     """
@@ -58,9 +59,17 @@ def svm_for_every_dataset():
                 path_directory_conf_matrix, conf_matrix_plot_file)
             
             dataset = AssignmentDataset(name=dataset_name, label=label_name)
+            
+            
+            
+            ## change use_canny_filter
             X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
-                dataset_object=dataset
+                dataset_object=dataset,
+                use_canny_filter=use_canny_filter
             )
+            
+            
+            
             Y_pred, training_acc, testing_acc = svm(kernel='rbf', C=1.0,
                                                     X_train=X_train,
                                                     Y_train=Y_train,

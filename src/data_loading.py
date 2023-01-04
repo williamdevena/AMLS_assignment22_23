@@ -17,7 +17,7 @@ from src import costants, image_manipulation
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
-def load_X_Y_train_test(dataset_object, scaling=True):
+def load_X_Y_train_test(dataset_object, scaling=True, use_canny_filter=False):
     """
     Reads the ds folders and the .csv labels files and returns
     X_train, Y_train, X_test and Y_test (X_train and X_test in a flatten format).
@@ -39,13 +39,13 @@ def load_X_Y_train_test(dataset_object, scaling=True):
     if not use_dominant_color_dataset:
         # load flatten train ds
         X_train = load_flatten_images_from_folder(
-            path_train_img, dataset_object.image_dimensions)
+            path_train_img, dataset_object.image_dimensions, use_canny_filter=use_canny_filter)
         Y_train = load_ds_labels_from_csv(path_train_labels)
         Y_train = Y_train[dataset_object.label]
 
         # load flatten test ds
         X_test = load_flatten_images_from_folder(
-            path_test_img, dataset_object.image_dimensions)
+            path_test_img, dataset_object.image_dimensions, use_canny_filter=use_canny_filter)
         Y_test = load_ds_labels_from_csv(path_test_labels)
         Y_test = Y_test[dataset_object.label]
     else:
@@ -176,7 +176,7 @@ def load_images_from_folder(ds_path, image_dimensions):
     return array_images
 
 
-def load_flatten_images_from_folder(ds_path, image_dimensions):
+def load_flatten_images_from_folder(ds_path, image_dimensions, use_canny_filter=False):
     """
     Reads the images from a folder and collects them in a flatten array form.
 
@@ -198,7 +198,18 @@ def load_flatten_images_from_folder(ds_path, image_dimensions):
     array_flatten_images = []
     for image_name in images_list:
         image_absolute_path = os.path.join(ds_path, image_name)
-        img_array_form = cv2.imread(image_absolute_path)
+
+        if use_canny_filter:
+            logging.info("- Applying Canny filter")
+            img_array_form = cv2.imread(
+                image_absolute_path, cv2.IMREAD_GRAYSCALE)
+            min_threshold = np.mean(img_array_form)*0.66
+            max_threshold = np.mean(img_array_form)*1.33
+            img_array_form = cv2.Canny(
+                image=img_array_form, threshold1=min_threshold, threshold2=max_threshold)
+        else:
+            img_array_form = cv2.imread(image_absolute_path)
+
         # resize image
         resized_img_array_form = cv2.resize(img_array_form, image_dimensions)
         img_flatten_array_form = resized_img_array_form.flatten()
