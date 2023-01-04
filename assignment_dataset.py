@@ -21,14 +21,14 @@ class AssignmentDataset():
                      'face_shape'
                     ],
                    (250, 250)),
-        #"celeba": (['gender', 'smiling'], (178, 218)),
-        # "cropped_eye_cartoon": (['eye_color'], (25, 29)),
-        #"dyn_cropped_eye_cartoon": (['eye_color'], (30, 30)),
-        # "cropped_mouth_celeba": (['gender', 'smiling'], (58, 33)),
-        # "cropped_eyes_celeba": (['gender', 'smiling'], (98, 38)),
-        # "dyn_cropped_mouth_celeba": (['gender', 'smiling'], (48, 25)),
-        # "dyn_cropped_eyes_celeba": (['gender', 'smiling'], (65, 25)),
-        # "dominant_color": (['eye_color'], None)
+        "celeba": (['gender', 'smiling'], (178, 218)),
+        "cropped_eye_cartoon": (['eye_color'], (25, 29)),
+        "dyn_cropped_eye_cartoon": (['eye_color'], (30, 30)),
+        "cropped_mouth_celeba": (['gender', 'smiling'], (58, 33)),
+        "cropped_eyes_celeba": (['gender', 'smiling'], (98, 38)),
+        "dyn_cropped_mouth_celeba": (['gender', 'smiling'], (48, 25)),
+        "dyn_cropped_eyes_celeba": (['gender', 'smiling'], (65, 25)),
+        "dominant_color": (['eye_color'], None)
     }
     
     

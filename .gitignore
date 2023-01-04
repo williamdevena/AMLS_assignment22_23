@@ -2,5 +2,6 @@ plots_and_logs/*
 mlruns/*
 lazy_predict_scores_log/*
 notebooks/*
+.VSCodeCounter*
 
 shape_predictor_68*

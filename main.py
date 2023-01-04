@@ -14,11 +14,12 @@ from torch import nn
 from torchvision import models
 # import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 from src import (
     data_loading,
     # data_preparation,
-    # data_visualization,
+    data_visualization,
     costants,
     # image_manipulation,
     seeds,
@@ -443,7 +444,7 @@ def main():
     #                                                              range_features=range_features)
 
     """
-    MLP
+    MLP ON FACE FEATURES
     """
     from sklearn.neural_network import MLPClassifier
 
@@ -452,12 +453,21 @@ def main():
     train_csv_path = costants.PATH_CARTOON_TRAIN_FACE_FEATURES
     test_csv_path = costants.PATH_CARTOON_TEST_FACE_FEATURES
 
+    # label = 'smiling'
+    # train_csv_path = costants.PATH_CELEBA_TRAIN_FACE_FEATURES
+    # test_csv_path = costants.PATH_CELEBA_TEST_FACE_FEATURES
+
+    # (0, 136) for all features
+    # (0, 34) for chin features
+
+    feature_slice = slice(0, 136)
+    #feature_slice = slice(0, 136)
+
     train_dataset_dict = data_loading.load_entire_ds_from_csv(
         csv_path=train_csv_path)
     test_dataset_dict = data_loading.load_entire_ds_from_csv(
         csv_path=test_csv_path)
 
-    feature_slice = slice(0, 33)
     X_train = train_dataset_dict['X'][:, feature_slice]
     X_test = test_dataset_dict['X'][:, feature_slice]
     print(X_train.shape, X_test.shape)
@@ -465,31 +475,102 @@ def main():
     Y_train = train_dataset_dict['Y'][label]
     Y_test = test_dataset_dict['Y'][label]
 
-    mlp = MLPClassifier(hidden_layer_sizes=(300, 600, 300, 100),
-                        random_state=1, max_iter=100,
-                        verbose=False, solver="lbfgs",
-                        warm_start=True)
+    # Y_train = np.where(Y_train == -1, 0, Y_train)
+    # Y_test = np.where(Y_test == -1, 0, Y_test)
+    #self.Y = np.where(self.Y == -1, 0, self.Y)
 
-    train_acc_array = []
-    test_acc_array = []
-    for x in range(100):
-        mlp.fit(X_train, Y_train)
-        training_acc = mlp.score(X_train, Y_train)
-        score = mlp.score(X_test, Y_test)
-        train_acc_array.append(training_acc)
-        test_acc_array.append(score)
-        print(training_acc, score)
+    # for face shape
+    # mlp = MLPClassifier(hidden_layer_sizes=(300, 600, 300, 100),
+    #                     random_state=1, max_iter=100,
+    #                     verbose=False, solver="lbfgs",
+    #                     warm_start=True)
 
-        if x % 10 == 9:
-            plt.plot(train_acc_array)
-            plt.plot(test_acc_array)
-            plt.savefig("test_mlp_training")
-            plt.close()
+    # for gender --> 0.926 acc
+    # mlp = MLPClassifier(hidden_layer_sizes=(20),
+    #                     random_state=1, max_iter=200,
+    #                     verbose=True, solver="adam",
+    #                     early_stopping=True,
+    #                     n_iter_no_change=50,
+    #                     #warm_start=True,
+    #                     learning_rate_init=0.01,  # 0.01
+    #                     alpha=0.0001)
 
-    print(train_acc_array, test_acc_array)
-    plt.plot(train_acc_array)
-    plt.plot(test_acc_array)
-    plt.savefig("test_mlp_training")
+    # for smiling
+    # mlp = MLPClassifier(hidden_layer_sizes=(100),  # 100
+    #                     random_state=1, max_iter=1000,
+    #                     verbose=True, solver="adam",
+    #                     early_stopping=False,
+    #                     n_iter_no_change=500,
+    #                     # warm_start=True,
+    #                     alpha=0.1,
+    #                     learning_rate_init=0.01)
+
+    # for face shape
+    mlp = MLPClassifier(hidden_layer_sizes=(100, 100, 100, 100),  # 100
+                        random_state=1, max_iter=1000,  # a 1500 si ferma
+                        verbose=True, solver="adam",
+                        early_stopping=True,
+                        validation_fraction=0.2,
+                        n_iter_no_change=1000,
+                        # warm_start=True,
+                        alpha=0.1,
+                        learning_rate_init=0.01)
+
+    mlp.fit(X_train, Y_train)
+
+    plt.plot(mlp.loss_curve_)
+    plt.savefig("loss_curve")
+    plt.close()
+
+    plt.plot(mlp.validation_scores_)
+    plt.savefig("validation scores")
+    plt.close()
+
+    training_acc = mlp.score(X_train, Y_train)
+    score = mlp.score(X_test, Y_test)
+    Y_pred = mlp.predict(X_test)
+    print(training_acc, score)
+
+    data_visualization.plot_confusion_matrix(
+        Y_test, Y_pred, ["0", "1", "2", "3", "4"], "confusion_matrix")
+
+    """
+    MLP on images
+    """
+    # from sklearn.neural_network import MLPClassifier
+
+    # dataset_name = "dyn_cropped_eyes_celeba"
+    # label_name = "gender"
+
+    # dataset = AssignmentDataset(name=dataset_name, label=label_name)
+    # X_train, Y_train, X_test, Y_test = data_loading.load_X_Y_train_test(
+    #     dataset_object=dataset
+    # )
+
+    # print(X_train.shape, Y_train.shape)
+
+    # # for gender
+    # mlp = MLPClassifier(hidden_layer_sizes=(1000),
+    #                     random_state=1, max_iter=100,
+    #                     verbose=True, solver="adam",
+    #                     early_stopping=True,
+    #                     n_iter_no_change=100,
+    #                     warm_start=True,
+    #                     alpha=0.001)
+
+    # mlp.fit(X_train, Y_train)
+
+    # plt.plot(mlp.loss_curve_)
+    # plt.savefig("loss_curve_")
+    # plt.close()
+
+    # plt.plot(mlp.validation_scores_)
+    # plt.savefig("validation scores")
+    # plt.close()
+
+    # training_acc = mlp.score(X_train, Y_train)
+    # score = mlp.score(X_test, Y_test)
+    # print(training_acc, score)
 
 
 if __name__ == "__main__":
