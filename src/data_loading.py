@@ -103,6 +103,11 @@ def retrieve_img_and_labels_paths(dataset_object):
         path_train_labels = costants.PATH_CARTOON_TRAIN_LABELS
         path_test_img = costants.PATH_CARTOON_TEST_DYN_CROPPED_EYE_IMG
         path_test_labels = costants.PATH_CARTOON_TEST_LABELS
+    elif dataset_object.name == "dyn_cropped_face_cartoon":
+        path_train_img = costants.PATH_CARTOON_TRAIN_DYN_CROPPED_FACE_IMG
+        path_train_labels = costants.PATH_CARTOON_TRAIN_LABELS
+        path_test_img = costants.PATH_CARTOON_TEST_DYN_CROPPED_FACE_IMG
+        path_test_labels = costants.PATH_CARTOON_TEST_LABELS
     elif dataset_object.name == "celeba":
         path_train_img = costants.PATH_CELEBA_TRAIN_IMG
         path_train_labels = costants.PATH_CELEBA_TRAIN_LABELS
@@ -127,6 +132,11 @@ def retrieve_img_and_labels_paths(dataset_object):
         path_train_img = costants.PATH_CELEBA_TRAIN_DYN_CROPPED_MOUTH_IMG
         path_train_labels = costants.PATH_CELEBA_TRAIN_LABELS
         path_test_img = costants.PATH_CELEBA_TEST_DYN_CROPPED_MOUTH_IMG
+        path_test_labels = costants.PATH_CELEBA_TEST_LABELS
+    elif dataset_object.name == "dyn_cropped_face_celeba":
+        path_train_img = costants.PATH_CELEBA_TRAIN_DYN_CROPPED_FACE_IMG
+        path_train_labels = costants.PATH_CELEBA_TRAIN_LABELS
+        path_test_img = costants.PATH_CELEBA_TEST_DYN_CROPPED_FACE_IMG
         path_test_labels = costants.PATH_CELEBA_TEST_LABELS
     elif dataset_object.name == "dominant_color":
         path_train_img = None
@@ -156,7 +166,7 @@ def load_images_from_folder(ds_path, image_dimensions):
         - array_images (np.ndarray): Numpy array that contains
         all the images in an array form
     """
-    logging.info(f"- Collecting NON-FLAT images from the folder {ds_path}")
+    logging.info(f"\n- Collecting NON-FLAT images from the folder {ds_path}")
     # the list of images is sorted beacuse in the labels file the dataframe is sorted by the number in the name
     # EXAMPLE OF IMAGE NAME: 987.png
     def sorting_lambda(image_name): return int(image_name.split(".")[0])
@@ -165,7 +175,7 @@ def load_images_from_folder(ds_path, image_dimensions):
     for image_name in images_list:
         # print(image_name)
         image_absolute_path = os.path.join(ds_path, image_name)
-        img_array_form = cv2.imread(image_absolute_path)
+        img_array_form = cv2.imread(image_absolute_path, cv2.IMREAD_COLOR)
         # resize image
         resized_img_array_form = cv2.resize(img_array_form, image_dimensions)
         #img_flatten_array_form = resized_img_array_form.flatten()
@@ -190,7 +200,7 @@ def load_flatten_images_from_folder(ds_path, image_dimensions, use_canny_filter=
         - array_flatten_images (np.ndarray): Numpy array that contains
         all the images in a flatten array form
     """
-    logging.info(f"- Collecting FLAT images from the folder {ds_path}")
+    logging.info(f"\n- Collecting FLAT images from the folder {ds_path}")
     # the list of images is sorted beacuse in the labels file the dataframe is sorted by the number in the name
     # EXAMPLE OF IMAGE NAME: 987.png
     def sorting_lambda(image_name): return int(image_name.split(".")[0])
@@ -208,7 +218,7 @@ def load_flatten_images_from_folder(ds_path, image_dimensions, use_canny_filter=
             img_array_form = cv2.Canny(
                 image=img_array_form, threshold1=min_threshold, threshold2=max_threshold)
         else:
-            img_array_form = cv2.imread(image_absolute_path)
+            img_array_form = cv2.imread(image_absolute_path, cv2.IMREAD_COLOR)
 
         # resize image
         resized_img_array_form = cv2.resize(img_array_form, image_dimensions)
@@ -265,7 +275,9 @@ def load_ds_labels_from_csv(csv_path, separator=costants.SEPARATOR):
     labels_df = pd.read_csv(csv_path, sep=separator)
     # we eliminate the index column and the img_name column
     # selecting only the labels columns
-    labels_df = labels_df.iloc[:, 2:]
+    # print(labels_df)
+    #labels_df = labels_df.iloc[:, 2:]
+
     labels_dict = {
         label: labels_df[label].to_numpy() for label in labels_df.keys()
     }

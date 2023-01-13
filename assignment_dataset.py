@@ -11,26 +11,28 @@ class AssignmentDataset():
     raw_possible_combinations = {
         "cartoon": (['eye_color', 'face_shape'], (500, 500)),
         #"cartoon": (['eye_color', 'face_shape'], (250, 250)),
-        #"celeba": (['gender', 'smiling'], (178, 218)),
+        "celeba": (['gender', 'smiling'], (178, 218)),
     }
     
     possible_combinations = {
-        # "cartoon": (['eye_color', 'face_shape'], (500, 500)),
+        #"cartoon": (['eye_color', 'face_shape'], (500, 500)),
         # "cartoon": ([
         #             #'eye_color', 
         #              'face_shape'
         #             ],
         #            (250, 250)),
-        # "celeba": (['gender', 'smiling'], (178, 218)),
-        # "cropped_eye_cartoon": (['eye_color'], (25, 29)),
-        # "dyn_cropped_eye_cartoon": (['eye_color'], (30, 30)),
+        #"celeba": (['gender', 'smiling'], (178, 218)),
+        "cropped_eye_cartoon": (['eye_color'], (25, 29)),
+        "dyn_cropped_eye_cartoon": (['eye_color'], (30, 30)),
+        "dyn_cropped_face_cartoon": (['face_shape'], (125, 140)),
+        
         "cropped_mouth_celeba": ([
-            #'gender', 
+            'gender', 
             'smiling'], (58, 33)),
-        # "cropped_eyes_celeba": (['gender', 'smiling'], (98, 38)),
-        # "dyn_cropped_mouth_celeba": (['gender', 'smiling'], (48, 25)),
-        # "dyn_cropped_eyes_celeba": (['gender', 'smiling'], (65, 25)),
-        # "dominant_color": (['eye_color'], None)
+        "cropped_eyes_celeba": (['gender', 'smiling'], (98, 38)),
+        "dyn_cropped_mouth_celeba": (['gender', 'smiling'], (48, 25)),
+        "dyn_cropped_eyes_celeba": (['gender', 'smiling'], (65, 25)),
+        "dyn_cropped_face_celeba": (['gender', 'smiling'], (125, 140)),
     }
     
     
@@ -121,8 +123,8 @@ class AssignmentDataset():
     }
     
     labels_values = {
-        "eye_color": [],
-        "face_shape": [],
+        "eye_color": ["0", "1", "2", "3", "4"],
+        "face_shape": ["0", "1", "2", "3", "4"],
         "gender": ["female", "male"],
         "smiling": ["non smiling", "smiling"]
     }

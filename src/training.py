@@ -1,31 +1,44 @@
+from tqdm import tqdm
+import torch
 import matplotlib.pyplot as plt
 
 
-def training_epochs(model, num_epochs, loss_function, optimizer, train_dataloader):
+def training_epochs(model, device, num_epochs, loss_function,
+                    optimizer, train_dataloader, test_dataloader,
+                    train_val_dataloader, val_dataloader):
     losses = []
+    test_accuracies = []
+    train_accuracies = []
+    val_accuracies = []
     for epoch in range(num_epochs):  # loop over the dataset multiple times
         running_loss = 0.0
-        for i, data in enumerate(train_dataloader, 0):
-            print(f"{i} \ {len(train_dataloader)}", end="\r")
+        print(f"Epoch: {epoch}")
+        for i, data in enumerate(tqdm(train_dataloader), 0):
+            #print(f"{i} \ {len(train_dataloader)}", end="\r")
+            # print(i)
             # get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
+            inputs = inputs.to(device)
+            labels = labels.to(device)
             #labels = torch.nn.functional.one_hot(labels)
-            #print(inputs.shape, labels)
-
-            # opt.zero_grad()
-            # loss.backward()
-            # opt.step()
-            # print(inputs)
-
+            #print(inputs.shape, labels.shape)
             # zero the parameter gradients
             optimizer.zero_grad()
+            # print("ffffffffff")
 
             # forward + backward + optimize
             outputs = model(inputs)
+            #outputs = nn.Sigmoid()(outputs)
+            # print(outputs)
 
-            #print(outputs.shape, labels.shape)
-            loss = loss_function(outputs, labels)
-            # print(outputs, labels, loss)
+            outputs = torch.squeeze(outputs).to(device)
+            # print(outputs)
+            #outputs = outputs.float()
+            #labels = labels.float()
+            #print(outputs, labels)
+            # print(outputs)
+            loss = loss_function(outputs, labels).to(device)
+            # print(loss)
             # print("\n\n")
             loss.backward()
             optimizer.step()
@@ -37,12 +50,103 @@ def training_epochs(model, num_epochs, loss_function, optimizer, train_dataloade
             #     print(
             #         f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / (i+1)}')
             #     running_loss = 0.0
+
+        test_acc = testing(model=model, device=device,
+                           test_dataloader=test_dataloader)
+        train_acc = testing(model=model, device=device,
+                            test_dataloader=train_val_dataloader)
+        val_acc = testing(model=model, device=device,
+                          test_dataloader=val_dataloader)
+
         average_loss = running_loss/len(train_dataloader)
-        print(average_loss)
+
+        train_accuracies.append(train_acc)
+        test_accuracies.append(test_acc)
+        val_accuracies.append(val_acc)
         losses.append(average_loss)
+        print("--------")
+        print(f"Loss: {average_loss}")
+        print(f"Train Accuracy: {train_acc}")
+        print(f"Val Accuracy: {val_acc}")
+        print(f"Test Accuracy: {test_acc}")
+        print("--------")
+
     plt.plot(losses)
-    plt.savefig("./plot_losses")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss function")
+    plt.savefig("./plot_loss")
+    plt.close()
+
+    plt.plot(train_accuracies, label="Train")
+    plt.plot(val_accuracies, label="Validation")
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.legend(loc="lower right")
+    plt.savefig("./plot_validation")
+    plt.close()
 
     print('Finished Training')
 
     return model
+
+
+def testing(model, device, test_dataloader, binary):
+    correct = 0
+    for i, data in enumerate(tqdm(test_dataloader), 0):
+        inputs, labels = data
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+        output = model(inputs).to(device)
+        output = output.float()
+        label = labels.float()
+
+        if binary:
+            output = 1 if output >= 0.5 else 0
+        else:
+            output = torch.unsqueeze(torch.argmax(output), dim=0)
+
+        #print(output, label)
+        #print(torch.unsqueeze(torch.argmax(output), dim=0))
+
+        if output == label:
+            correct += 1
+
+    # print(correct/len(test_dataloader))
+    accuracy = correct/len(test_dataloader)
+
+    return accuracy
+
+
+def pred(model, device, test_dataloader):
+    """
+
+
+    Args:
+        model (_type_): _description_
+        test_dataloader (_type_): _description_
+    """
+
+    pred = []
+    for i, data in enumerate(tqdm(test_dataloader), 0):
+        inputs, labels = data
+        inputs = inputs.to(device)
+        labels = labels.to(device)
+        output = model(inputs).to(device)
+        output = output.float()
+        label = labels.float()
+
+        output = 1 if output >= 0.5 else 0
+        #output = torch.unsqueeze(torch.argmax(output), dim=0)
+
+        #print(output, label)
+        #print(torch.unsqueeze(torch.argmax(output), dim=0))
+
+
+#        if output == label:
+        #  correct += 1
+        pred.append(output)
+
+    # print(correct/len(test_dataloader))
+    #accuracy = correct/len(test_dataloader)
+
+    return torch.tensor(pred)

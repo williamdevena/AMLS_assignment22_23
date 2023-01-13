@@ -1,5 +1,3 @@
-
-
 from torch.utils.data import Dataset
 from torchvision import transforms
 import torch
@@ -18,21 +16,33 @@ from assignment_dataset import AssignmentDataset
 
 
 class PytorchDataset(Dataset):
-    def __init__(self, dataset_name, label_name, train_or_test):
+    def __init__(self, dataset_name, label_name, train_or_test, validation_split, transform=None):
         self.dataset_object = AssignmentDataset(
             name=dataset_name, label=label_name)
         self.image_dimensions = AssignmentDataset.possible_combinations[dataset_name][1]
         self.train_or_test = train_or_test
+        self.transform = transform
+        self.validation_split = validation_split
 
         path_train_img, path_train_labels, path_test_img, path_test_labels, use_dominant_color_dataset = retrieve_img_and_labels_paths(
             dataset_object=self.dataset_object
         )
+        # print(path_train_img)
 
         if self.train_or_test == "train":
             self.X = load_images_from_folder(
                 path_train_img, self.dataset_object.image_dimensions)
             self.Y = load_ds_labels_from_csv(path_train_labels)
             self.Y = self.Y[self.dataset_object.label]
+            self.X = self.X[:self.validation_split]
+            self.Y = self.Y[:self.validation_split]
+        elif self.train_or_test == "validation":
+            self.X = load_images_from_folder(
+                path_train_img, self.dataset_object.image_dimensions)
+            self.Y = load_ds_labels_from_csv(path_train_labels)
+            self.Y = self.Y[self.dataset_object.label]
+            self.X = self.X[self.validation_split:]
+            self.Y = self.Y[self.validation_split:]
         elif self.train_or_test == "test":
             self.X = load_images_from_folder(
                 path_test_img, self.dataset_object.image_dimensions)
@@ -40,7 +50,7 @@ class PytorchDataset(Dataset):
             self.Y = self.Y[self.dataset_object.label]
 
         # SCALING
-        self.X = self.X / 255
+        #self.X = self.X / 255
 
         # Changing the labels from -1,+1 to 0,+1
         # Note: in the case of multiclass classification
@@ -48,19 +58,20 @@ class PytorchDataset(Dataset):
         # (because in the classes you don't have -1)
         self.Y = np.where(self.Y == -1, 0, self.Y)
 
-        self.X = torch.Tensor(self.X)
-        self.Y = torch.Tensor(self.Y).long()
+        #self.X = torch.Tensor(self.X)
+        #self.Y = torch.Tensor(self.Y).long()
+
         #self.Y = torch.unsqueeze(self.Y, dim=-1)
 
         # PERMUTING DIMENSIONS
-        self.X = torch.permute(self.X, (0, 3, 1, 2))
+        #self.X = torch.permute(self.X, (0, 3, 1, 2))
 
-        print(self.X.shape, self.Y.shape)
+        #print(self.X.shape, self.Y.shape)
         # print(self.X[0][:1][:1])
         # print(self.Y[:30])
 
-        self.X = self.X[:16]
-        self.Y = self.Y[:16]
+        # self.X = self.X[:16]
+        # self.Y = self.Y[:16]
 
     def __len__(self):
         return len(self.X)
@@ -68,5 +79,8 @@ class PytorchDataset(Dataset):
     def __getitem__(self, idx):
         image = self.X[idx]
         label = self.Y[idx]
+
+        if self.transform:
+            image = self.transform(image=image)["image"]
 
         return image, label

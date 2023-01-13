@@ -26,6 +26,8 @@ from src.costants import (
     SEPARATOR,
 )
 
+from src import costants
+
 sys.path.append("../")
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
@@ -97,7 +99,7 @@ def check_shape_images(path_folder_images):
     logging.info(f"READING THE DATASET IN THE FOLDER {path_folder_images}")
     images = os.listdir(path_folder_images)
     array_shapes = [
-        cv2.imread(os.path.join(path_folder_images, image)).shape
+        cv2.imread(os.path.join(path_folder_images, image), cv2.IMREAD_COLOR).shape
         for image in images
     ]
     shapes_np_unique = np.unique(array_shapes, axis=0, return_counts=True)
@@ -144,7 +146,7 @@ def count_dark_glasses(path_folder_images):
 #     to solve with a hard coded solution.
 
 #     Args:
-#         - path_folder_images (str): path of the folder that contains 
+#         - path_folder_images (str): path of the folder that contains
 #         the images of the dataset
 #         - pixel_y (int): y of the pixel we want to select
 #         - pixel_x (int): x of the pixel we want to select
@@ -163,7 +165,7 @@ def count_dark_glasses(path_folder_images):
 #     dict_images_pupil_colors = {}
 #     for file in os.listdir(path_folder_images):
 #         if file.endswith(".png"):
-#             img = cv2.imread(os.path.join(path_folder_images, file))
+#             img = cv2.imread(os.path.join(path_folder_images, file), cv2.IMREAD_COLOR)
 #             pupil_color = img[pixel_y, pixel_x]
 #             tuple_pupil_color = tuple(pupil_color)
 #             # in this case get() returns dict_pupil_colors[pupil_color] if pupil_color
@@ -222,8 +224,8 @@ def count_dominant_pupil_colors(path_folder_images):
             dict_dominant_colors[dominant_color] = dict_dominant_colors.get(
                 dominant_color, 0) + 1
     dict_dominant_colors = dict(sorted(dict_dominant_colors.items(),
-                       key=lambda item: item[1], reverse=True))
-    
+                                       key=lambda item: item[1], reverse=True))
+
     return dict_dominant_colors
 
 

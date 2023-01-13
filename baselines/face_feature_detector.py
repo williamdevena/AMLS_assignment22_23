@@ -32,15 +32,17 @@ def crop_images_dinamycally_using_face_features(path_original_folder, path_cropp
 
     """
     logging.info(
-        f"- Cropping dynamically the images of the folder {path_original_folder} and writing them in {path_cropped_folder}")
+        f"\n- Cropping dynamically the images of the folder {path_original_folder} and writing them in {path_cropped_folder}")
     if not os.path.isdir(path_cropped_folder):
         os.mkdir(path_cropped_folder)
     for file in os.listdir(path_original_folder):
         if file.endswith(extension_image):
-            image = cv2.imread(os.path.join(path_original_folder, file))
+            image = cv2.imread(os.path.join(
+                path_original_folder, file), cv2.IMREAD_COLOR)
             features = extract_face_features(
                 image=image, detector=detector, predictor=predictor, range_features=range_features)
             cropping_coordinates = calculate_cropping_coordinates(features)
+            # print(cropping_coordinates)
             slice_y = slice(
                 cropping_coordinates[2], cropping_coordinates[3], 1)
             slice_x = slice(
@@ -85,14 +87,14 @@ def calculate_cropping_coordinates(features):
     ])
 
 
-def create_and_write_face_features_dataset(detector, predictor, range_features):
+def create_and_write_face_features_datasets(detector, predictor, range_features):
     """
     Reads a dataset of images and creates a dataset that has
     the key face points coordinates of the images as features
     and writes it locally as csv files
 
     Args:
-        - detector (_type_): _description_
+        - detector: _description_
         - predictor (_type_): _description_
         - range_features (_type_): _description_
     """
@@ -100,6 +102,7 @@ def create_and_write_face_features_dataset(detector, predictor, range_features):
         costants.DATASETS_PATH,
         "face_features"
     )
+    
     if not os.path.exists(directory_path):
         os.mkdir(directory_path)
 

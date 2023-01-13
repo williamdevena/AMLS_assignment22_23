@@ -6,6 +6,21 @@ from colorthief import ColorThief
 import numpy as np
 
 
+def transform_ds_rgba_to_rgb(path_folder, new_folder):
+    logging.info(
+        f"\n- Trasforming the images from {path_folder} from RGB-A to RGB and writing them in {new_folder}")
+    images = os.listdir(path_folder)
+
+    if not os.path.exists(new_folder):
+        os.mkdir(new_folder)
+
+    for image_name in images:
+        image = cv2.imread(os.path.join(
+            path_folder, image_name), cv2.IMREAD_COLOR)
+        cv2.imwrite(filename=os.path.join(new_folder, image_name), img=image)
+        # print(image)
+
+
 def crop_images_dataset(path_original_folder, path_cropped_folder, extension_image, crop_y, crop_x):
     """
     It reads a folder with images and creates a new folder with inside the cropped version 
@@ -22,11 +37,14 @@ def crop_images_dataset(path_original_folder, path_cropped_folder, extension_ima
     Returns: None
 
     """
+    logging.info(
+        f"\n- Cropping manually the images in {path_original_folder} and writing them in {path_cropped_folder}")
     if not os.path.isdir(path_cropped_folder):
         os.mkdir(path_cropped_folder)
     for file in os.listdir(path_original_folder):
         if file.endswith(extension_image):
-            img = cv2.imread(os.path.join(path_original_folder, file))
+            img = cv2.imread(os.path.join(
+                path_original_folder, file), cv2.IMREAD_COLOR)
             cropped_image = img[crop_y, crop_x]
             cv2.imwrite(os.path.join(path_cropped_folder, file), cropped_image)
 
