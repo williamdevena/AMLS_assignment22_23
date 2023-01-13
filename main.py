@@ -395,38 +395,38 @@ def main():
 
     # CNN ON FACE SHAPE RECOGNITION
 
-    dataset_name = "dyn_cropped_face_cartoon"
-    label_name = "face_shape"
-    test_transform = A.Compose(
-        [
-            A.Normalize(),
-            ToTensorV2(),
-        ]
-    )
+    # dataset_name = "dyn_cropped_face_cartoon"
+    # label_name = "face_shape"
+    # test_transform = A.Compose(
+    #     [
+    #         A.Normalize(),
+    #         ToTensorV2(),
+    #     ]
+    # )
 
-    test_set = PytorchDataset(
-        dataset_name=dataset_name, label_name=label_name, train_or_test="test",
-        transform=test_transform,
-        validation_split=7500)
+    # test_set = PytorchDataset(
+    #     dataset_name=dataset_name, label_name=label_name, train_or_test="test",
+    #     transform=test_transform,
+    #     validation_split=7500)
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = models.efficientnet_b0(weights='DEFAULT')
-    model.classifier = nn.Sequential(
-        nn.Dropout(p=0.2, inplace=True),
-        nn.Linear(in_features=1280, out_features=5, bias=True)
-    )
-    model = model.to(device)
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # model = models.efficientnet_b0(weights='DEFAULT')
+    # model.classifier = nn.Sequential(
+    #     nn.Dropout(p=0.2, inplace=True),
+    #     nn.Linear(in_features=1280, out_features=5, bias=True)
+    # )
+    # model = model.to(device)
 
-    test_dataloader = torch.utils.data.DataLoader(test_set,
-                                                  batch_size=1,
-                                                  shuffle=False)
+    # test_dataloader = torch.utils.data.DataLoader(test_set,
+    #                                               batch_size=1,
+    #                                               shuffle=False)
 
-    model.load_state_dict(torch.load(
-        "./weights_cnn/weights_cnn_face_shape", map_location=torch.device(device)))
+    # model.load_state_dict(torch.load(
+    #     "./weights_cnn/weights_cnn_face_shape", map_location=torch.device(device)))
 
-    test_acc = training.testing(model, device, test_dataloader, binary=False)
-    logging.info(
-        f"\n- EfficientNet B0 accuracy on face shape recognition: {test_acc}")
+    # test_acc = training.testing(model, device, test_dataloader, binary=False)
+    # logging.info(
+    #     f"\n- EfficientNet B0 accuracy on face shape recognition: {test_acc}")
 
     # CNN ON GENDER DETECTION
 
@@ -448,7 +448,7 @@ def main():
     model = models.efficientnet_b0(weights='DEFAULT')
     model.classifier = nn.Sequential(
         nn.Dropout(p=0.2, inplace=True),
-        nn.Linear(in_features=1280, out_features=5, bias=True)
+        nn.Linear(in_features=1280, out_features=1, bias=True)
     )
     model = model.to(device)
 
@@ -457,7 +457,7 @@ def main():
                                                   shuffle=False)
 
     model.load_state_dict(torch.load(
-        "./weights_cnn/weights_cnn_face_shape", map_location=torch.device(device)))
+        "./weights_cnn/weights_cnn_gender", map_location=torch.device(device)))
 
     test_acc = training.testing(model, device, test_dataloader, binary=True)
     logging.info(
