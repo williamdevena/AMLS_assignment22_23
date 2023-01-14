@@ -15,13 +15,13 @@ class AssignmentDataset():
     }
     
     possible_combinations = {
-        #"cartoon": (['eye_color', 'face_shape'], (500, 500)),
+        "cartoon": (['eye_color', 'face_shape'], (500, 500)),
         # "cartoon": ([
         #             #'eye_color', 
         #              'face_shape'
         #             ],
         #            (250, 250)),
-        #"celeba": (['gender', 'smiling'], (178, 218)),
+        "celeba": (['gender', 'smiling'], (178, 218)),
         "cropped_eye_cartoon": (['eye_color'], (25, 29)),
         "dyn_cropped_eye_cartoon": (['eye_color'], (30, 30)),
         "dyn_cropped_face_cartoon": (['face_shape'], (125, 140)),

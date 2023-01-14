@@ -2,7 +2,7 @@ import os
 
 #PROJECT_PATH = "/Users/william.devena/Desktop/UCL/COURSES/AML1/ASSIGNMENT_PROJECT/AMLS_assignment22_23"
 PROJECT_PATH = os.path.abspath(".")
-DATASET_FOLDER_NAME = "../Datasets"
+DATASET_FOLDER_NAME = "./Datasets"
 DATASETS_PATH = os.path.join(PROJECT_PATH, DATASET_FOLDER_NAME)
 
 

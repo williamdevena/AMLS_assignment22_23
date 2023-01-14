@@ -1,13 +1,3 @@
-
-# from sklearn.decomposition import PCA
-# #from lazypredict.Supervised import LazyClassifier
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.cluster import KMeans, MiniBatchKMeans
-# from sklearn.metrics import confusion_matrix
-# import numpy as np
-# import matplotlib.pyplot as plt
-# import random
-# import os
 import logging
 import torch
 import torch.optim as optim
@@ -79,299 +69,299 @@ def main():
     """
 
     # Cropped eye Cartoon Set dataset
-    # path_original_train_folder = costants.PATH_CARTOON_TRAIN_IMG
-    # path_cropped_train_folder = costants.PATH_CARTOON_TRAIN_CROPPED_EYE_IMG
-    # path_original_test_folder = costants.PATH_CARTOON_TEST_IMG
-    # path_cropped_test_folder = costants.PATH_CARTOON_TEST_CROPPED_EYE_IMG
-    # crop_y = slice(248, 277)
-    # crop_x = slice(283, 308)
-    # extension_image = ".png"
-    # image_manipulation.crop_images_dataset(
-    #     path_original_train_folder, path_cropped_train_folder, extension_image, crop_y, crop_x)
-    # image_manipulation.crop_images_dataset(
-    #     path_original_test_folder, path_cropped_test_folder, extension_image, crop_y, crop_x)
+    path_original_train_folder = costants.PATH_CARTOON_TRAIN_IMG
+    path_cropped_train_folder = costants.PATH_CARTOON_TRAIN_CROPPED_EYE_IMG
+    path_original_test_folder = costants.PATH_CARTOON_TEST_IMG
+    path_cropped_test_folder = costants.PATH_CARTOON_TEST_CROPPED_EYE_IMG
+    crop_y = slice(248, 277)
+    crop_x = slice(283, 308)
+    extension_image = ".png"
+    image_manipulation.crop_images_dataset(
+        path_original_train_folder, path_cropped_train_folder, extension_image, crop_y, crop_x)
+    image_manipulation.crop_images_dataset(
+        path_original_test_folder, path_cropped_test_folder, extension_image, crop_y, crop_x)
 
-    # # Cropped eyes CelebA dataset
-    # path_original_train_folder = costants.PATH_CELEBA_TRAIN_IMG
-    # path_cropped_train_folder = costants.PATH_CELEBA_TRAIN_CROPPED_EYES_IMG
-    # path_original_test_folder = costants.PATH_CELEBA_TEST_IMG
-    # path_cropped_test_folder = costants.PATH_CELEBA_TEST_CROPPED_EYES_IMG
-    # crop_y = slice(90, 128)
-    # crop_x = slice(40, 138)
-    # extension_image = ".jpg"
-    # image_manipulation.crop_images_dataset(
-    #     path_original_train_folder, path_cropped_train_folder, extension_image, crop_y, crop_x)
-    # image_manipulation.crop_images_dataset(
-    #     path_original_test_folder, path_cropped_test_folder, extension_image, crop_y, crop_x)
+    # Cropped eyes CelebA dataset
+    path_original_train_folder = costants.PATH_CELEBA_TRAIN_IMG
+    path_cropped_train_folder = costants.PATH_CELEBA_TRAIN_CROPPED_EYES_IMG
+    path_original_test_folder = costants.PATH_CELEBA_TEST_IMG
+    path_cropped_test_folder = costants.PATH_CELEBA_TEST_CROPPED_EYES_IMG
+    crop_y = slice(90, 128)
+    crop_x = slice(40, 138)
+    extension_image = ".jpg"
+    image_manipulation.crop_images_dataset(
+        path_original_train_folder, path_cropped_train_folder, extension_image, crop_y, crop_x)
+    image_manipulation.crop_images_dataset(
+        path_original_test_folder, path_cropped_test_folder, extension_image, crop_y, crop_x)
 
-    # # Cropped mouth CelebA dataset
-    # path_original_train_folder = costants.PATH_CELEBA_TRAIN_IMG
-    # path_cropped_train_folder = costants.PATH_CELEBA_TRAIN_CROPPED_MOUTH_IMG
-    # path_original_test_folder = costants.PATH_CELEBA_TEST_IMG
-    # path_cropped_test_folder = costants.PATH_CELEBA_TEST_CROPPED_MOUTH_IMG
-    # crop_y = slice(140, 173)
-    # crop_x = slice(60, 118)
-    # extension_image = ".jpg"
-    # image_manipulation.crop_images_dataset(
-    #     path_original_train_folder, path_cropped_train_folder, extension_image, crop_y, crop_x)
-    # image_manipulation.crop_images_dataset(
-    #     path_original_test_folder, path_cropped_test_folder, extension_image, crop_y, crop_x)
+    # Cropped mouth CelebA dataset
+    path_original_train_folder = costants.PATH_CELEBA_TRAIN_IMG
+    path_cropped_train_folder = costants.PATH_CELEBA_TRAIN_CROPPED_MOUTH_IMG
+    path_original_test_folder = costants.PATH_CELEBA_TEST_IMG
+    path_cropped_test_folder = costants.PATH_CELEBA_TEST_CROPPED_MOUTH_IMG
+    crop_y = slice(140, 173)
+    crop_x = slice(60, 118)
+    extension_image = ".jpg"
+    image_manipulation.crop_images_dataset(
+        path_original_train_folder, path_cropped_train_folder, extension_image, crop_y, crop_x)
+    image_manipulation.crop_images_dataset(
+        path_original_test_folder, path_cropped_test_folder, extension_image, crop_y, crop_x)
 
     """
     DYNAMIC CROP (WITH FACE DETECTOR)
     """
-    # # Load the detector
-    # detector = dlib.get_frontal_face_detector()
+    # Load the detector
+    detector = dlib.get_frontal_face_detector()
 
-    # # Load the predictor
-    # predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+    # Load the predictor
+    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
-    # # Mouth (CELEBA)
-    # range_features = range(49, 68)
-    # resized_shape = (48, 25)
-    # extension = ".jpg"
+    # Mouth (CELEBA)
+    range_features = range(49, 68)
+    resized_shape = (48, 25)
+    extension = ".jpg"
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TRAIN_IMG,
-    #                                                                   costants.PATH_CELEBA_TRAIN_DYN_CROPPED_MOUTH_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TRAIN_IMG,
+                                                                      costants.PATH_CELEBA_TRAIN_DYN_CROPPED_MOUTH_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
-    #                                                                   costants.PATH_CELEBA_TEST_DYN_CROPPED_MOUTH_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
+                                                                      costants.PATH_CELEBA_TEST_DYN_CROPPED_MOUTH_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # # Eyes (CELEBA)
-    # range_features = range(37, 48)
-    # resized_shape = (65, 25)
-    # extension = ".jpg"
+    # Eyes (CELEBA)
+    range_features = range(37, 48)
+    resized_shape = (65, 25)
+    extension = ".jpg"
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TRAIN_IMG,
-    #                                                                   costants.PATH_CELEBA_TRAIN_DYN_CROPPED_EYES_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TRAIN_IMG,
+                                                                      costants.PATH_CELEBA_TRAIN_DYN_CROPPED_EYES_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
-    #                                                                   costants.PATH_CELEBA_TEST_DYN_CROPPED_EYES_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
+                                                                      costants.PATH_CELEBA_TEST_DYN_CROPPED_EYES_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # # Eye (CARTOON)
-    # range_features = range(42, 48)
-    # resized_shape = (30, 30)
-    # extension = ".png"
+    # Eye (CARTOON)
+    range_features = range(42, 48)
+    resized_shape = (30, 30)
+    extension = ".png"
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TRAIN_IMG,
-    #                                                                   costants.PATH_CARTOON_TRAIN_DYN_CROPPED_EYE_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TRAIN_IMG,
+                                                                      costants.PATH_CARTOON_TRAIN_DYN_CROPPED_EYE_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TEST_IMG,
-    #                                                                   costants.PATH_CARTOON_TEST_DYN_CROPPED_EYE_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TEST_IMG,
+                                                                      costants.PATH_CARTOON_TEST_DYN_CROPPED_EYE_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # Face (CELEBA and CARTOON)
-    # range_features = range(0, 68)
-    # resized_shape = (125, 140)
+    ### Face (CELEBA and CARTOON)
+    range_features = range(0, 68)
+    resized_shape = (125, 140)
 
-    # extension = ".png"
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TRAIN_IMG,
-    #                                                                   costants.PATH_CARTOON_TRAIN_DYN_CROPPED_FACE_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    extension = ".png"
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TRAIN_IMG,
+                                                                      costants.PATH_CARTOON_TRAIN_DYN_CROPPED_FACE_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TEST_IMG,
-    #                                                                   costants.PATH_CARTOON_TEST_DYN_CROPPED_FACE_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CARTOON_TEST_IMG,
+                                                                      costants.PATH_CARTOON_TEST_DYN_CROPPED_FACE_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # extension = ".jpg"
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TRAIN_IMG,
-    #                                                                   costants.PATH_CELEBA_TRAIN_DYN_CROPPED_FACE_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    extension = ".jpg"
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TRAIN_IMG,
+                                                                      costants.PATH_CELEBA_TRAIN_DYN_CROPPED_FACE_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
-    # face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
-    #                                                                   costants.PATH_CELEBA_TEST_DYN_CROPPED_FACE_IMG,
-    #                                                                   extension,
-    #                                                                   detector,
-    #                                                                   predictor,
-    #                                                                   range_features,
-    #                                                                   resized_shape
-    #                                                                   )
+    face_feature_detector.crop_images_dinamycally_using_face_features(costants.PATH_CELEBA_TEST_IMG,
+                                                                      costants.PATH_CELEBA_TEST_DYN_CROPPED_FACE_IMG,
+                                                                      extension,
+                                                                      detector,
+                                                                      predictor,
+                                                                      range_features,
+                                                                      resized_shape
+                                                                      )
 
     """
     CREATE AND WRITE LANDMARK FEATURES DATASETS
     """
     # Load the detector
-    # detector = dlib.get_frontal_face_detector()
+    detector = dlib.get_frontal_face_detector()
 
-    # # Load the predictor
-    # predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+    # Load the predictor
+    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
 
-    # range_features = range(0, 68)  # ALL
+    range_features = range(0, 68)  # ALL
 
-    # # CREATE AND WRITE FACE FEATURES DATASETS
-    # face_feature_detector.create_and_write_face_features_datasets(detector=detector,
-    #                                                               predictor=predictor,
-    #                                                               range_features=range_features)
+    # CREATE AND WRITE FACE FEATURES DATASETS
+    face_feature_detector.create_and_write_face_features_datasets(detector=detector,
+                                                                  predictor=predictor,
+                                                                  range_features=range_features)
 
     """
     SVM AND KNN ON FACE FEATURES
     """
 
-    # # LOAD DS FROM CSV OF FEATURE FACE
+    # LOAD DS FROM CSV OF FEATURE FACE
 
-    # # FACE SHAPE
-    # logging.info(
-    #     "\n\n- Face shape recognition with landmark features (jaw features)")
-    # label = 'face_shape'
-    # train_csv_path = costants.PATH_CARTOON_TRAIN_FACE_FEATURES
-    # test_csv_path = costants.PATH_CARTOON_TEST_FACE_FEATURES
-    # # # (0, 136) for all features
-    # # # (0, 34) for jaw features
+    # FACE SHAPE
+    logging.info(
+        "\n\n- Face shape recognition with landmark features (jaw features)")
+    label = 'face_shape'
+    train_csv_path = costants.PATH_CARTOON_TRAIN_FACE_FEATURES
+    test_csv_path = costants.PATH_CARTOON_TEST_FACE_FEATURES
+    # # (0, 136) for all features
+    # # (0, 34) for jaw features
 
-    # feature_slice = slice(0, 34)
-    # # #feature_slice = slice(0, 136)
+    feature_slice = slice(0, 34)
+    # #feature_slice = slice(0, 136)
 
-    # train_dataset_dict = data_loading.load_entire_ds_from_csv(
-    #     csv_path=train_csv_path)
-    # test_dataset_dict = data_loading.load_entire_ds_from_csv(
-    #     csv_path=test_csv_path)
+    train_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=train_csv_path)
+    test_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=test_csv_path)
 
-    # X_train = train_dataset_dict['X'][:, feature_slice]
-    # X_test = test_dataset_dict['X'][:, feature_slice]
-    # #print(X_train.shape, X_test.shape)
+    X_train = train_dataset_dict['X'][:, feature_slice]
+    X_test = test_dataset_dict['X'][:, feature_slice]
+    #print(X_train.shape, X_test.shape)
 
-    # Y_train = train_dataset_dict['Y'][label]
-    # Y_test = test_dataset_dict['Y'][label]
+    Y_train = train_dataset_dict['Y'][label]
+    Y_test = test_dataset_dict['Y'][label]
 
-    # Y_pred, training_acc, testing_acc = svm.svm(kernel='rbf', C=1.0,
-    #                                             X_train=X_train,
-    #                                             Y_train=Y_train,
-    #                                             X_test=X_test,
-    #                                             Y_test=Y_test)
+    Y_pred, training_acc, testing_acc = svm.svm(kernel='rbf', C=1.0,
+                                                X_train=X_train,
+                                                Y_train=Y_train,
+                                                X_test=X_test,
+                                                Y_test=Y_test)
 
-    # logging.info(f"\n- SVM score: {testing_acc}")
+    logging.info(f"\n- SVM score: {testing_acc}")
 
-    # Y_pred, training_acc, testing_acc = knn.knn(
-    #     30, X_train, Y_train, X_test, Y_test)
+    Y_pred, training_acc, testing_acc = knn.knn(
+        30, X_train, Y_train, X_test, Y_test)
 
-    # logging.info(f"\n- KNN score: {testing_acc}")
+    logging.info(f"\n- KNN score: {testing_acc}")
 
-    # # SMILE DETECTION
-    # logging.info("\n\n- Smile detection with landmark features")
-    # label = 'smiling'
-    # train_csv_path = costants.PATH_CELEBA_TRAIN_FACE_FEATURES
-    # test_csv_path = costants.PATH_CELEBA_TEST_FACE_FEATURES
-    # # # (0, 136) for all features
-    # # # (0, 34) for jaw features
+    # SMILE DETECTION
+    logging.info("\n\n- Smile detection with landmark features")
+    label = 'smiling'
+    train_csv_path = costants.PATH_CELEBA_TRAIN_FACE_FEATURES
+    test_csv_path = costants.PATH_CELEBA_TEST_FACE_FEATURES
+    # # (0, 136) for all features
+    # # (0, 34) for jaw features
 
-    # feature_slice = slice(0, 136)
-    # # #feature_slice = slice(0, 136)
+    feature_slice = slice(0, 136)
+    # #feature_slice = slice(0, 136)
 
-    # train_dataset_dict = data_loading.load_entire_ds_from_csv(
-    #     csv_path=train_csv_path)
-    # test_dataset_dict = data_loading.load_entire_ds_from_csv(
-    #     csv_path=test_csv_path)
+    train_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=train_csv_path)
+    test_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=test_csv_path)
 
-    # X_train = train_dataset_dict['X'][:, feature_slice]
-    # X_test = test_dataset_dict['X'][:, feature_slice]
-    # #print(X_train.shape, X_test.shape)
+    X_train = train_dataset_dict['X'][:, feature_slice]
+    X_test = test_dataset_dict['X'][:, feature_slice]
+    #print(X_train.shape, X_test.shape)
 
-    # Y_train = train_dataset_dict['Y'][label]
-    # Y_test = test_dataset_dict['Y'][label]
+    Y_train = train_dataset_dict['Y'][label]
+    Y_test = test_dataset_dict['Y'][label]
 
-    # Y_pred, training_acc, testing_acc = svm.svm(kernel='rbf', C=1.0,
-    #                                             X_train=X_train,
-    #                                             Y_train=Y_train,
-    #                                             X_test=X_test,
-    #                                             Y_test=Y_test)
+    Y_pred, training_acc, testing_acc = svm.svm(kernel='rbf', C=1.0,
+                                                X_train=X_train,
+                                                Y_train=Y_train,
+                                                X_test=X_test,
+                                                Y_test=Y_test)
 
-    # logging.info(f"\n- SVM score: {testing_acc}")
+    logging.info(f"\n- SVM score: {testing_acc}")
 
-    # Y_pred, training_acc, testing_acc = knn.knn(
-    #     30, X_train, Y_train, X_test, Y_test)
+    Y_pred, training_acc, testing_acc = knn.knn(
+        30, X_train, Y_train, X_test, Y_test)
 
-    # logging.info(f"\n- KNN score: {testing_acc}")
+    logging.info(f"\n- KNN score: {testing_acc}")
 
-    # # GENDER DETECTION
-    # logging.info("\n\n- Gender detection with landmark features")
-    # label = 'gender'
-    # train_csv_path = costants.PATH_CELEBA_TRAIN_FACE_FEATURES
-    # test_csv_path = costants.PATH_CELEBA_TEST_FACE_FEATURES
-    # # # (0, 136) for all features
-    # # # (0, 34) for jaw features
+    # GENDER DETECTION
+    logging.info("\n\n- Gender detection with landmark features")
+    label = 'gender'
+    train_csv_path = costants.PATH_CELEBA_TRAIN_FACE_FEATURES
+    test_csv_path = costants.PATH_CELEBA_TEST_FACE_FEATURES
+    # # (0, 136) for all features
+    # # (0, 34) for jaw features
 
-    # feature_slice = slice(0, 136)
-    # # #feature_slice = slice(0, 136)
+    feature_slice = slice(0, 136)
+    # #feature_slice = slice(0, 136)
 
-    # train_dataset_dict = data_loading.load_entire_ds_from_csv(
-    #     csv_path=train_csv_path)
-    # test_dataset_dict = data_loading.load_entire_ds_from_csv(
-    #     csv_path=test_csv_path)
+    train_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=train_csv_path)
+    test_dataset_dict = data_loading.load_entire_ds_from_csv(
+        csv_path=test_csv_path)
 
-    # X_train = train_dataset_dict['X'][:, feature_slice]
-    # X_test = test_dataset_dict['X'][:, feature_slice]
-    # #print(X_train.shape, X_test.shape)
+    X_train = train_dataset_dict['X'][:, feature_slice]
+    X_test = test_dataset_dict['X'][:, feature_slice]
+    #print(X_train.shape, X_test.shape)
 
-    # Y_train = train_dataset_dict['Y'][label]
-    # Y_test = test_dataset_dict['Y'][label]
+    Y_train = train_dataset_dict['Y'][label]
+    Y_test = test_dataset_dict['Y'][label]
 
-    # Y_pred, training_acc, testing_acc = svm.svm(kernel='rbf', C=1.0,
-    #                                             X_train=X_train,
-    #                                             Y_train=Y_train,
-    #                                             X_test=X_test,
-    #                                             Y_test=Y_test)
+    Y_pred, training_acc, testing_acc = svm.svm(kernel='rbf', C=1.0,
+                                                X_train=X_train,
+                                                Y_train=Y_train,
+                                                X_test=X_test,
+                                                Y_test=Y_test)
 
-    # logging.info(f"\n- SVM score: {testing_acc}")
+    logging.info(f"\n- SVM score: {testing_acc}")
 
-    # Y_pred, training_acc, testing_acc = knn.knn(
-    #     30, X_train, Y_train, X_test, Y_test)
+    Y_pred, training_acc, testing_acc = knn.knn(
+        30, X_train, Y_train, X_test, Y_test)
 
-    # logging.info(f"\n- KNN score: {testing_acc}")
+    logging.info(f"\n- KNN score: {testing_acc}")
 
     """
     KNN
     """
-    # knn_for_every_dataset()
+    knn_for_every_dataset()
 
     '''
     KNN CROSS VALIDATION
@@ -387,7 +377,7 @@ def main():
     """
     SVM ON ALL DATASETS
     """
-    # svm_for_every_dataset()
+    svm_for_every_dataset()
 
     """
     CNN TESTING
@@ -395,40 +385,42 @@ def main():
 
     # CNN ON FACE SHAPE RECOGNITION
 
-    # dataset_name = "dyn_cropped_face_cartoon"
-    # label_name = "face_shape"
-    # test_transform = A.Compose(
-    #     [
-    #         A.Normalize(),
-    #         ToTensorV2(),
-    #     ]
-    # )
+    dataset_name = "dyn_cropped_face_cartoon"
+    label_name = "face_shape"
+    test_transform = A.Compose(
+        [
+            A.Normalize(),
+            ToTensorV2(),
+        ]
+    )
 
-    # test_set = PytorchDataset(
-    #     dataset_name=dataset_name, label_name=label_name, train_or_test="test",
-    #     transform=test_transform,
-    #     validation_split=7500)
+    test_set = PytorchDataset(
+        dataset_name=dataset_name, label_name=label_name, train_or_test="test",
+        transform=test_transform,
+        validation_split=7500)
 
-    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # model = models.efficientnet_b0(weights='DEFAULT')
-    # model.classifier = nn.Sequential(
-    #     nn.Dropout(p=0.2, inplace=True),
-    #     nn.Linear(in_features=1280, out_features=5, bias=True)
-    # )
-    # model = model.to(device)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model = models.efficientnet_b0(weights='DEFAULT')
+    model.classifier = nn.Sequential(
+        nn.Dropout(p=0.2, inplace=True),
+        nn.Linear(in_features=1280, out_features=5, bias=True)
+    )
+    model = model.to(device)
 
-    # test_dataloader = torch.utils.data.DataLoader(test_set,
-    #                                               batch_size=1,
-    #                                               shuffle=False)
+    test_dataloader = torch.utils.data.DataLoader(test_set,
+                                                  batch_size=1,
+                                                  shuffle=False)
 
-    # model.load_state_dict(torch.load(
-    #     "./weights_cnn/weights_cnn_face_shape", map_location=torch.device(device)))
+    model.load_state_dict(torch.load(
+        "./weights_cnn/weights_cnn_face_shape", map_location=torch.device(device)))
 
-    # test_acc = training.testing(model, device, test_dataloader, binary=False)
-    # logging.info(
-    #     f"\n- EfficientNet B0 accuracy on face shape recognition: {test_acc}")
+    test_acc = training.testing(model, device, test_dataloader, binary=False)
+    logging.info(
+        f"\n- EfficientNet B0 accuracy on face shape recognition: {test_acc}")
 
+    #####
     # CNN ON GENDER DETECTION
+    #####
 
     dataset_name = "dyn_cropped_face_celeba"
     label_name = "gender"
