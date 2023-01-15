@@ -5,5 +5,3 @@ notebooks/*
 .VSCodeCounter*
 
 shape_predictor_68*
-
-Datasets/*
