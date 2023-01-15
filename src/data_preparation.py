@@ -30,7 +30,7 @@ from src import costants
 
 sys.path.append("../")
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+#logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 def data_preparation():

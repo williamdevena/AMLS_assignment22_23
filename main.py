@@ -33,7 +33,16 @@ from models.smile_cnn import SmileCNN
 from assignment_dataset import AssignmentDataset
 from pytorch_dataset import PytorchDataset
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+#logging.basicConfig(format="%(message)s", level=logging.INFO)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[
+        logging.FileHandler("log/assignment.log"),
+        logging.StreamHandler()
+    ]
+)
 
 
 def main():

@@ -26,7 +26,7 @@ from assignment_dataset import AssignmentDataset
 # sys.path.append("../")
 
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+#logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 def knn_for_every_dataset():

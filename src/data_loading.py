@@ -14,7 +14,7 @@ from sklearn.preprocessing import StandardScaler
 
 from src import costants, image_manipulation
 
-logging.basicConfig(format="%(message)s", level=logging.INFO)
+#logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 def load_X_Y_train_test(dataset_object, scaling=True, use_canny_filter=False):
