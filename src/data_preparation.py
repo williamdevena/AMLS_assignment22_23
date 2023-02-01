@@ -3,17 +3,18 @@ This file contains all the functions used to prepare/clean data
 
 """
 
-import utilities.logging_utilities as logging_utilities
 import logging
 import os
 import sys
-from pprint import pprint, pformat
+from pprint import pformat, pprint
 
 import cv2
 import numpy as np
 import pandas as pd
 from colorthief import ColorThief
 
+import utilities.logging_utilities as logging_utilities
+from src import costants
 from src.costants import (
     PATH_CARTOON_TEST_IMG,
     PATH_CARTOON_TEST_LABELS,
@@ -26,11 +27,7 @@ from src.costants import (
     SEPARATOR,
 )
 
-from src import costants
-
 sys.path.append("../")
-
-#logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 def data_preparation():
@@ -194,7 +191,7 @@ def count_dominant_pupil_colors(path_folder_images):
     Returns the dominant colors of the pupils in the dataset.
 
     Args:
-        - path_folder_images (str): path of the folder that contains 
+        - path_folder_images (str): path of the folder that contains
         the images of the dataset
 
     Returns:
@@ -214,8 +211,6 @@ def count_dominant_pupil_colors(path_folder_images):
         if file.endswith(".png"):
             print(f"Progress: {i} \ 10000", end='\r')
             i += 1
-            # if i > 200:
-            #     break
             color_thief = ColorThief(os.path.join(path_folder_images, file))
             # get the dominant color
             dominant_color = color_thief.get_color(quality=10)

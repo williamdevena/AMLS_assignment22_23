@@ -1,15 +1,12 @@
+import logging
+import os
+
 import cv2
 import numpy as np
 import pandas as pd
-import os
-import logging
-
-from src import (
-    costants,
-    data_loading
-)
 
 from assignment_dataset import AssignmentDataset
+from src import costants, data_loading
 
 
 def crop_images_dinamycally_using_face_features(path_original_folder, path_cropped_folder, extension_image, detector, predictor, range_features,
@@ -102,7 +99,7 @@ def create_and_write_face_features_datasets(detector, predictor, range_features)
         costants.DATASETS_PATH,
         "face_features"
     )
-    
+
     if not os.path.exists(directory_path):
         os.mkdir(directory_path)
 
@@ -213,10 +210,8 @@ def extract_face_features(image, detector, predictor, range_features):
         landmarks = predictor(image=gray, box=face)
         # Loop through all the points
         for n in range_features:
-            # print(n)
             x = landmarks.part(n).x
             y = landmarks.part(n).y
-            #print(x, y)
             landmarks_array.append([x, y])
 
     return np.array(landmarks_array)

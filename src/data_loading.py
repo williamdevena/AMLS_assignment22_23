@@ -4,17 +4,16 @@ This file contains all the functions used to load data
 """
 
 
+import logging
+import os
+from pprint import pprint
+
+import cv2
 import numpy as np
 import pandas as pd
-import os
-import cv2
-import logging
-from pprint import pprint
 from sklearn.preprocessing import StandardScaler
 
 from src import costants, image_manipulation
-
-#logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 
 def load_X_Y_train_test(dataset_object, scaling=True, use_canny_filter=False):
@@ -72,7 +71,7 @@ def load_X_Y_train_test(dataset_object, scaling=True, use_canny_filter=False):
 def retrieve_img_and_labels_paths(dataset_object):
     """
     Returns the specific paths of the images folder and of the label file
-    of the training and testing dataset 
+    of the training and testing dataset
 
     Args:
         - dataset_object (Dataset): dataset object
@@ -158,8 +157,8 @@ def load_images_from_folder(ds_path, image_dimensions):
 
     Args:
         - ds_path (str): Path of the dataset folser
-        - image_dimensions (tuple): represents the shape that we want for the 
-        image of the dataset (in the case it's smaller then the original, 
+        - image_dimensions (tuple): represents the shape that we want for the
+        image of the dataset (in the case it's smaller then the original,
         resizing is perfomed)
 
     Returns:
@@ -173,13 +172,11 @@ def load_images_from_folder(ds_path, image_dimensions):
     images_list = sorted(os.listdir(ds_path), key=sorting_lambda)
     array_images = []
     for image_name in images_list:
-        # print(image_name)
         image_absolute_path = os.path.join(ds_path, image_name)
         img_array_form = cv2.imread(image_absolute_path, cv2.IMREAD_COLOR)
         # resize image
         resized_img_array_form = cv2.resize(img_array_form, image_dimensions)
         #img_flatten_array_form = resized_img_array_form.flatten()
-        # print(resized_img_array_form.shape)
         array_images.append(resized_img_array_form)
 
     array_images = np.array(array_images)
@@ -192,8 +189,8 @@ def load_flatten_images_from_folder(ds_path, image_dimensions, use_canny_filter=
 
     Args:
         - ds_path (str): Path of the dataset folser
-        - image_dimensions (tuple): represents the shape that we want for the 
-        image of the dataset (in the case it's smaller then the original, 
+        - image_dimensions (tuple): represents the shape that we want for the
+        image of the dataset (in the case it's smaller then the original,
         resizing is perfomed)
 
     Returns:
@@ -273,10 +270,6 @@ def load_ds_labels_from_csv(csv_path, separator=costants.SEPARATOR):
     """
     labels_dict = {}
     labels_df = pd.read_csv(csv_path, sep=separator)
-    # we eliminate the index column and the img_name column
-    # selecting only the labels columns
-    # print(labels_df)
-    #labels_df = labels_df.iloc[:, 2:]
 
     labels_dict = {
         label: labels_df[label].to_numpy() for label in labels_df.keys()

@@ -1,9 +1,11 @@
-import os
-import cv2
 import logging
-from src import data_loading
-from colorthief import ColorThief
+import os
+
+import cv2
 import numpy as np
+from colorthief import ColorThief
+
+from src import data_loading
 
 
 def transform_ds_rgba_to_rgb(path_folder, new_folder):
@@ -18,12 +20,11 @@ def transform_ds_rgba_to_rgb(path_folder, new_folder):
         image = cv2.imread(os.path.join(
             path_folder, image_name), cv2.IMREAD_COLOR)
         cv2.imwrite(filename=os.path.join(new_folder, image_name), img=image)
-        # print(image)
 
 
 def crop_images_dataset(path_original_folder, path_cropped_folder, extension_image, crop_y, crop_x):
     """
-    It reads a folder with images and creates a new folder with inside the cropped version 
+    It reads a folder with images and creates a new folder with inside the cropped version
     of the images.
 
     Args:
@@ -51,7 +52,7 @@ def crop_images_dataset(path_original_folder, path_cropped_folder, extension_ima
 
 def create_dominant_colors_dataset(path_original_dataset, path_original_labels):
     """
-    It reads a dataset and creates a transformed version of it where the transformation 
+    It reads a dataset and creates a transformed version of it where the transformation
     consists in assigning every image of the dataset to it's dominant color.
     So it reduces the dataset to a 3 dimension one (the RGB dimensions of the dominant color).
     This purpose of this function is mainly to be applied on the 'cropped eye cartoon' dataset.
@@ -82,8 +83,6 @@ def create_dominant_colors_dataset(path_original_dataset, path_original_labels):
     i = 0
     for file in files:
         if file.endswith(".png"):
-            # if i > 1000:
-            #     break
             print(f"Progress: {i} \ {len(files)}", end='\r')
             color_thief = ColorThief(
                 os.path.join(path_original_dataset, file))
@@ -92,7 +91,6 @@ def create_dominant_colors_dataset(path_original_dataset, path_original_labels):
             label = Y_train_original[i]
             X_train_dominant_colors.append(dominant_color)
             Y_train_dominant_colors.append(label)
-            #print(file, label)
             i += 1
     print("")
 

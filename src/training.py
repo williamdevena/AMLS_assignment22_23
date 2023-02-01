@@ -1,6 +1,6 @@
-from tqdm import tqdm
-import torch
 import matplotlib.pyplot as plt
+import torch
+from tqdm import tqdm
 
 
 def training_epochs(model, device, num_epochs, loss_function,
@@ -14,42 +14,21 @@ def training_epochs(model, device, num_epochs, loss_function,
         running_loss = 0.0
         print(f"Epoch: {epoch}")
         for i, data in enumerate(tqdm(train_dataloader), 0):
-            #print(f"{i} \ {len(train_dataloader)}", end="\r")
-            # print(i)
-            # get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
             inputs = inputs.to(device)
             labels = labels.to(device)
-            #labels = torch.nn.functional.one_hot(labels)
-            #print(inputs.shape, labels.shape)
+
             # zero the parameter gradients
             optimizer.zero_grad()
-            # print("ffffffffff")
 
             # forward + backward + optimize
             outputs = model(inputs)
-            #outputs = nn.Sigmoid()(outputs)
-            # print(outputs)
-
             outputs = torch.squeeze(outputs).to(device)
-            # print(outputs)
-            #outputs = outputs.float()
-            #labels = labels.float()
-            #print(outputs, labels)
-            # print(outputs)
             loss = loss_function(outputs, labels).to(device)
-            # print(loss)
-            # print("\n\n")
             loss.backward()
             optimizer.step()
 
-            # print statistics
             running_loss += loss.item()
-            # print_cycle_length = 100
-            # if i % print_cycle_length == print_cycle_length-1:
-            #     print(
-            #         f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / (i+1)}')
-            #     running_loss = 0.0
 
         test_acc = testing(model=model, device=device,
                            test_dataloader=test_dataloader)
@@ -105,13 +84,9 @@ def testing(model, device, test_dataloader, binary):
         else:
             output = torch.unsqueeze(torch.argmax(output), dim=0)
 
-        #print(output, label)
-        #print(torch.unsqueeze(torch.argmax(output), dim=0))
-
         if output == label:
             correct += 1
 
-    # print(correct/len(test_dataloader))
     accuracy = correct/len(test_dataloader)
 
     return accuracy
@@ -136,17 +111,6 @@ def pred(model, device, test_dataloader):
         label = labels.float()
 
         output = 1 if output >= 0.5 else 0
-        #output = torch.unsqueeze(torch.argmax(output), dim=0)
-
-        #print(output, label)
-        #print(torch.unsqueeze(torch.argmax(output), dim=0))
-
-
-#        if output == label:
-        #  correct += 1
         pred.append(output)
-
-    # print(correct/len(test_dataloader))
-    #accuracy = correct/len(test_dataloader)
 
     return torch.tensor(pred)

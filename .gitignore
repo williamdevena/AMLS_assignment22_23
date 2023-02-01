@@ -5,3 +5,5 @@ notebooks/*
 .VSCodeCounter*
 
 shape_predictor_68*
+
+weights_cnn/*

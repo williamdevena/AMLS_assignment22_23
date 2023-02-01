@@ -1,18 +1,16 @@
+import numpy as np
+import torch
+from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import Dataset
 from torchvision import transforms
-import torch
-import numpy as np
-from sklearn.preprocessing import MinMaxScaler
-
-from src.data_loading import (
-    load_X_Y_train_test,
-    retrieve_img_and_labels_paths,
-    # load_flatten_images_from_folder,
-    load_images_from_folder,
-    load_ds_labels_from_csv
-)
 
 from assignment_dataset import AssignmentDataset
+from src.data_loading import (  # load_flatten_images_from_folder,
+    load_ds_labels_from_csv,
+    load_images_from_folder,
+    load_X_Y_train_test,
+    retrieve_img_and_labels_paths,
+)
 
 
 class PytorchDataset(Dataset):
@@ -27,7 +25,6 @@ class PytorchDataset(Dataset):
         path_train_img, path_train_labels, path_test_img, path_test_labels, use_dominant_color_dataset = retrieve_img_and_labels_paths(
             dataset_object=self.dataset_object
         )
-        # print(path_train_img)
 
         if self.train_or_test == "train":
             self.X = load_images_from_folder(
@@ -57,21 +54,6 @@ class PytorchDataset(Dataset):
         # this line is not going to change anything
         # (because in the classes you don't have -1)
         self.Y = np.where(self.Y == -1, 0, self.Y)
-
-        #self.X = torch.Tensor(self.X)
-        #self.Y = torch.Tensor(self.Y).long()
-
-        #self.Y = torch.unsqueeze(self.Y, dim=-1)
-
-        # PERMUTING DIMENSIONS
-        #self.X = torch.permute(self.X, (0, 3, 1, 2))
-
-        #print(self.X.shape, self.Y.shape)
-        # print(self.X[0][:1][:1])
-        # print(self.Y[:30])
-
-        # self.X = self.X[:16]
-        # self.Y = self.Y[:16]
 
     def __len__(self):
         return len(self.X)
