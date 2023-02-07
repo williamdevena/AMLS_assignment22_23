@@ -1,4 +1,4 @@
-# AMLS_assignment22_23
+# Gender and Smiling detection (AMLS_assignment22_23)
 Assignment project for the course Applied Machine Learning Systems I. Read the file "ELEC134(22-23)-new.pdf" for more details on the assignment.
 
 ## Requirements
