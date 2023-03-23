@@ -2,6 +2,8 @@
 Assignment project for the course Applied Machine Learning Systems I. Read the file "ELEC134(22-23)-new.pdf" for more details on the assignment.
 Read the file **"Report.pdf"** and **"Additional_material.pdf"** for a detailed description of the approaches used.
 
+![My Image](model_face.png)
+
 ## Requirements
 
 - See requirements.txt (created with command conda liste -e)
